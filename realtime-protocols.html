@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>リアルタイム通信プロトコル解剖</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#E9EDE8; --panel:#F7F8F4; --ink:#18202B; --muted:#5A6570; --rule:#C6CEC8; --grid:rgba(24,32,43,.06);
+  --blue:#2B57C9; --mag:#B32C6E; --teal:#0F7F70; --ochre:#9A6A08;
+  --f0:#DCE5FB; --f1:#F7DCE8; --f2:#D6F0EA; --f3:#F5E7C6; --f4:#E6DDF6; --f5:#E2E8DA;
+  --f0i:#1D3E92; --f1i:#7E1C4C; --f2i:#0B5A4F; --f3i:#6B4A05; --f4i:#4A2E86; --f5i:#3D4A2A;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#11151B; --panel:#191F27; --ink:#E2E6E9; --muted:#8E99A3; --rule:#2D3641; --grid:rgba(226,230,233,.05);
+    --blue:#7F9EFF; --mag:#F07AAF; --teal:#4FD0BB; --ochre:#E2B04D;
+    --f0:#22305A; --f1:#4A2238; --f2:#173F39; --f3:#45381A; --f4:#33284F; --f5:#2E3626;
+    --f0i:#BFD0FF; --f1i:#FFC4DD; --f2i:#B2F0E4; --f3i:#F7DDA0; --f4i:#D9C9FF; --f5i:#D6E3C2;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#11151B; --panel:#191F27; --ink:#E2E6E9; --muted:#8E99A3; --rule:#2D3641; --grid:rgba(226,230,233,.05);
+  --blue:#7F9EFF; --mag:#F07AAF; --teal:#4FD0BB; --ochre:#E2B04D;
+  --f0:#22305A; --f1:#4A2238; --f2:#173F39; --f3:#45381A; --f4:#33284F; --f5:#2E3626;
+  --f0i:#BFD0FF; --f1i:#FFC4DD; --f2i:#B2F0E4; --f3i:#F7DDA0; --f4i:#D9C9FF; --f5i:#D6E3C2;
+  color-scheme:dark;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"IBM Plex Sans JP","Hiragino Sans","Noto Sans JP",system-ui,sans-serif;font-size:15px;line-height:1.75;-webkit-text-size-adjust:100%}
+code,.mono{font-family:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace}
+code{font-size:.88em;background:var(--grid);padding:.05em .35em;border-radius:3px}
+.wrap{max-width:1320px;margin:0 auto;padding:28px clamp(14px,3vw,36px) 48px}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 32px;margin-bottom:22px}
+h1{font-size:clamp(26px,3.4vw,40px);line-height:1.15;margin:0;font-weight:700;letter-spacing:-.01em}
+h1 small{display:block;font-size:14px;font-weight:400;color:var(--muted);letter-spacing:0;margin-top:8px}
+nav.lessons{display:flex;gap:4px;flex-wrap:wrap}
+nav.lessons button{font:inherit;font-size:14px;font-weight:500;color:var(--muted);background:transparent;border:1px solid var(--rule);padding:6px 14px;border-radius:999px;cursor:pointer}
+nav.lessons button[aria-current="true"]{color:var(--panel);background:var(--ink);border-color:var(--ink)}
+nav.lessons button:hover:not([aria-current="true"]){color:var(--ink);border-color:var(--ink)}
+.lead{max-width:72ch;margin:0 0 18px;color:var(--muted)}
+.lead b{color:var(--ink);font-weight:500}
+.grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:20px;align-items:start}
+.diagram{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);background:var(--panel);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+.diagram .scroll{max-height:calc(100vh - 120px);overflow:auto;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:16px 16px}
+.diagram svg{display:block;width:100%;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:4px 16px;padding:8px 14px;border-top:1px solid var(--rule);font-size:12px;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:14px;height:2px;margin-right:6px;vertical-align:middle;background:currentColor}
+.legend .ctl{color:var(--blue)}.legend .sig{color:var(--ochre)}.legend .med{color:var(--mag)}.legend .dat{color:var(--teal)}
+.legend em{font-style:normal;color:var(--muted)}
+.legend em::before{display:none}
+.side{display:flex;flex-direction:column;gap:16px;min-width:0}
+.step{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:18px 20px}
+.stepnum{font-size:13px;color:var(--muted)}
+.step h2{font-size:21px;line-height:1.35;margin:2px 0 10px;font-weight:700}
+.step .body p{margin:0 0 .7em;max-width:62ch}
+.step .body p:last-child{margin-bottom:0}
+.controls{display:flex;align-items:center;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--rule)}
+.controls button{font:inherit;font-size:14px;font-weight:500;color:var(--ink);background:transparent;border:1px solid var(--rule);border-radius:6px;padding:6px 14px;cursor:pointer}
+.controls button:hover:not(:disabled){border-color:var(--ink)}
+.controls button:disabled{opacity:.35;cursor:default}
+.controls button.primary{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.controls .dots{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end}
+.controls .dots i{width:7px;height:7px;border-radius:50%;background:var(--rule);cursor:pointer}
+.controls .dots i.on{background:var(--ink)}
+button:focus-visible,.dots i:focus-visible,.byte:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.insp{background:var(--panel);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+.insp h3{margin:0;padding:12px 20px;font-size:14px;font-weight:500;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;gap:12px}
+.insp h3 span{color:var(--muted);font-weight:400}
+.raw{padding:16px 20px;font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;font-size:13.5px;line-height:2.1;overflow-x:auto}
+.raw .byte,.raw .tok{display:inline-block;padding:0 4px;margin:0 2px 0 0;border-radius:3px;cursor:default;line-height:1.7}
+.raw .tok{white-space:pre}
+.raw .br{display:block;height:0}
+.c0{background:var(--f0);color:var(--f0i)}.c1{background:var(--f1);color:var(--f1i)}.c2{background:var(--f2);color:var(--f2i)}
+.c3{background:var(--f3);color:var(--f3i)}.c4{background:var(--f4);color:var(--f4i)}.c5{background:var(--f5);color:var(--f5i)}
+.raw .hot,.fields tr.hot td{outline:2px solid var(--ink);outline-offset:-1px}
+.fields{width:100%;border-collapse:collapse;font-size:13.5px}
+.fields td{padding:8px 12px;border-top:1px solid var(--rule);vertical-align:top}
+.fields td:first-child{width:10px;padding-right:0}
+.fields td:first-child i{display:block;width:10px;height:10px;border-radius:2px;margin-top:6px}
+.fields .fn{font-weight:500;white-space:nowrap}
+.fields .fv{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;font-size:12.5px;word-break:break-all;color:var(--muted);max-width:14em}
+.fields .fd{color:var(--muted)}
+.empty{padding:22px 20px;color:var(--muted)}
+.note{font-size:12.5px;color:var(--muted);padding:10px 20px;border-top:1px solid var(--rule)}
+svg text{font-family:"IBM Plex Sans JP","Hiragino Sans","Noto Sans JP",system-ui,sans-serif}
+.st{transition:opacity .3s}
+.st.fut{opacity:.1}
+.st.past{opacity:.45}
+.st.cur{opacity:1}
+.st{cursor:pointer}
+.hop.wait{opacity:.15}
+@media (max-width:900px){
+  .grid{grid-template-columns:1fr}
+  .diagram{position:static}
+  .diagram .scroll{max-height:52vh}
+}
+@media (prefers-reduced-motion:reduce){.st{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>リアルタイム通信を、1パケットずつ<small>WebSocket・WebRTC・ゲームのネットコード・WebTransport が実際に何を送っているか</small></h1>
+    <nav class="lessons" id="tabs" aria-label="レッスン"></nav>
+  </header>
+  <p class="lead" id="lead"></p>
+  <div class="grid">
+    <section class="diagram" aria-label="シーケンス図">
+      <div class="scroll" id="scroll"><svg id="svg" role="img"></svg></div>
+      <div class="legend">
+        <span class="ctl">接続制御</span><span class="sig">シグナリング</span><span class="med">メディア・状態</span><span class="dat">データ</span><em>図をクリックでその手順へ</em>
+      </div>
+    </section>
+    <div class="side">
+      <article class="step" aria-live="polite">
+        <div class="stepnum" id="stepnum"></div>
+        <h2 id="steptitle"></h2>
+        <div class="body" id="stepbody"></div>
+        <div class="controls">
+          <button id="prev">前へ</button>
+          <button id="play" class="primary">自動再生</button>
+          <button id="next">次へ</button>
+          <div class="dots" id="dots"></div>
+        </div>
+      </article>
+      <section class="insp" aria-label="パケットの中身">
+        <h3 id="pname"></h3>
+        <div id="praw"></div>
+        <table class="fields" id="pfields"></table>
+        <div class="note" id="pnote" hidden></div>
+      </section>
+    </div>
+  </div>
+</div>
+<script>
+const h=(n,x,d)=>({n,x,d:d||''});
+const t=(n,v,d,br=true)=>({n,v,d:d||'',br});
+const gameHdr=(seq,ack,bits,type,typeDesc)=>[
+  h('プロトコルID','47 41 4D 45','「GAME」。無関係なUDPパケットをここで弾く'),
+  h('シーケンス',seq,'このパケットの通し番号'),
+  h('ack',ack,'相手から最後に受け取ったパケット番号'),
+  h('ack bits',bits,'ackより前の32個を受け取れたか(1=受信)'),
+  h('種別',type,typeDesc)
+];
+const GAME_NOTE='この章のバイナリは解説用の架空フォーマットです(Glenn Fiedler の「Networking for Game Programmers」系の設計を参考)。実際のゲームは独自形式を使います。';
+
+const LESSONS=[
+{id:'websocket',tab:'WebSocket',
+ lead:'<b>HTTPで始まり、1本のTCP接続を双方向の通り道に変えるプロトコル。</b>チャット、通知、ターン制ゲーム、シグナリングサーバーの定番です。TCPの上なので届く順番と到着は保証されますが、1つ落ちると後ろが全部待たされます。',
+ lanes:[['c','ブラウザ','new WebSocket()'],['s','サーバー','ws://example.com/chat']],
+ steps:[
+ {t:'TCP接続を張る',hops:[['c','s','SYN','ctl'],['s','c','SYN-ACK','ctl'],['c','s','ACK','ctl']],
+  b:'<p>WebSocketはTCPの上で動きます。まず3ウェイハンドシェイクで1往復(1 RTT)。<code>wss://</code> ならこの後TLSハンドシェイクでさらに1往復かかります。</p><p>ここで張った1本の接続を、切断するまで使い続けるのがWebSocketの特徴です。</p>',
+  p:{n:'TCPヘッダー(SYN)',f:[h('送信元ポート','C3 50','50000。OSが選ぶ一時ポート'),h('宛先ポート','00 50','80番(wss なら 443)'),h('シーケンス番号','1A 2B 3C 4D','ランダムな初期値'),h('確認応答番号','00 00 00 00','SYNではまだ使わない'),h('データオフセット','50','上位4bitが5 → ヘッダー長20バイト'),h('フラグ','02','SYNビットだけが立っている'),h('ウィンドウ','FF FF','一度に受け取れる量の目安'),h('チェックサム','B1 7E','検査値(例)'),h('緊急ポインタ','00 00','ほぼ使われない')]}},
+ {t:'HTTPで「アップグレードしたい」と頼む',hops:[['c','s','GET /chat Upgrade','ctl']],
+  b:'<p>最初のリクエストは普通のHTTP GETです。だからプロキシやロードバランサーを通りやすい。<code>Upgrade: websocket</code> で別プロトコルへの切り替えを求めます。</p><p><code>Sec-WebSocket-Key</code> は16バイトの乱数をBase64にしたもの。認証ではなく、WebSocketを理解しないサーバーやキャッシュが誤って応答するのを防ぐためのものです。</p>',
+  p:{n:'HTTPリクエスト(テキスト)',f:[t('リクエスト行','GET /chat HTTP/1.1','普通のHTTP GETとして始まる'),t('Host','Host: example.com'),t('Upgrade','Upgrade: websocket','プロトコルの切り替えを要求'),t('Connection','Connection: Upgrade','Upgradeヘッダーを処理せよという合図'),t('Key','Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==','16バイト乱数のBase64'),t('Version','Sec-WebSocket-Version: 13','RFC 6455'),t('Origin','Origin: https://example.com','サーバー側でオリジン検証に使う'),t('空行','␍␊','ヘッダーの終わり')]}},
+ {t:'101 Switching Protocols',hops:[['s','c','101 Switching','ctl']],
+  b:'<p>サーバーが了承すると <code>101</code> を返し、この応答を最後にHTTPは終わります。以降同じTCP接続を流れるのはWebSocketフレームだけです。</p><p><code>Sec-WebSocket-Accept</code> はKeyに固定のGUIDをつないでSHA-1を取り、Base64にした値。クライアントは自分で計算して一致を確かめます。</p>',
+  p:{n:'HTTPレスポンス(テキスト)',f:[t('ステータス行','HTTP/1.1 101 Switching Protocols','これ以降はHTTPではなくなる'),t('Upgrade','Upgrade: websocket'),t('Connection','Connection: Upgrade'),t('Accept','Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=','Key + 258EAFA5-E914-47DA-95CA-C5AB0DC85B11 → SHA-1 → Base64'),t('空行','␍␊')]}},
+ {t:'クライアントがテキストを送る(マスクあり)',hops:[['c','s','Text「Hello」','dat']],
+  b:'<p>ヘッダーはたった2〜14バイト。HTTPリクエストを毎回送るのに比べて圧倒的に軽量です。</p><p>クライアント→サーバーのフレームは必ず<b>マスク</b>されます。ペイロードを4バイトのランダムな鍵とXORする仕組みで、暗号化ではありません。中間プロキシが中身をHTTPと誤解して汚染される攻撃を防ぐためです。</p>',
+  p:{n:'WebSocketフレーム',f:[h('FIN + opcode','81','FIN=1(最後の断片)、opcode=0x1(テキスト)'),h('MASK + 長さ','85','MASK=1、ペイロード長=5'),h('マスキングキー','37 FA 21 3D','フレームごとに作るランダムな4バイト'),h('ペイロード(マスク済み)','7F 9F 4D 51 58','「Hello」の i 番目のバイトを key[i mod 4] とXOR')]}},
+ {t:'サーバーがテキストを返す(マスクなし)',hops:[['s','c','Text「Hello」','dat']],
+  b:'<p>サーバー→クライアントはマスクなし。中身がそのまま見えます。</p><p>長さが125以下なら2バイト目に直接入ります。126なら続く2バイト、127なら続く8バイトが本当の長さです。</p>',
+  p:{n:'WebSocketフレーム',f:[h('FIN + opcode','81','テキストフレーム'),h('MASK + 長さ','05','MASK=0、長さ5'),h('ペイロード','48 65 6C 6C 6F','「Hello」そのまま')]}},
+ {t:'Ping / Pong で生存確認',hops:[['s','c','Ping','ctl'],['c','s','Pong','ctl']],
+  b:'<p>しばらく無通信だと、NATやロードバランサーが接続を勝手に切ることがあります。Pingを定期的に流し、受け取った側は同じペイロードでPongを返します。</p><p>ブラウザのJS APIからはPingを送れないので、アプリ側で独自のハートビートメッセージを流すことも多いです。</p>',
+  p:{n:'Pingフレーム',f:[h('FIN + opcode','89','opcode=0x9(Ping)。制御フレームは分割できない'),h('MASK + 長さ','05','長さ5(制御フレームは125以下)'),h('ペイロード','48 65 6C 6C 6F','Pongでそのまま返される')]}},
+ {t:'Closeで終える',hops:[['c','s','Close 1000','ctl'],['s','c','Close 1000','ctl'],['s','c','TCP FIN','ctl']],
+  b:'<p>終了はCloseフレームの交換から。先頭2バイトに理由コードが入ります。1000は正常終了、1001は離脱、1006は(実際には送られない)異常切断を表す値です。</p><p>両方がCloseを送り合ったら、サーバーがTCPを閉じます。</p>',
+  p:{n:'Closeフレーム(クライアント)',f:[h('FIN + opcode','88','opcode=0x8(Close)'),h('MASK + 長さ','82','MASK=1、長さ2'),h('マスキングキー','37 FA 21 3D',''),h('ステータス(マスク済み)','34 12','0x03E8 = 1000(正常終了)をマスクした値')]}}
+ ]},
+
+{id:'webrtc',tab:'WebRTC',
+ lead:'<b>ブラウザ同士が直接つながり、音声・映像・データを送り合う仕組み。</b>直接つながるまでの段取り(シグナリング、NAT越え、鍵交換)がこのプロトコルの大半です。シグナリングの方式は規格で決まっておらず、多くはWebSocketを使います。',
+ lanes:[['t','STUN / TURN','NAT越えの補助'],['a','Peer A','発信側'],['g','シグナリング','WebSocketなど'],['b','Peer B','着信側']],
+ steps:[
+ {t:'オファーを作って送る',hops:[['a','a','createOffer()','sig'],['a','g','offer (SDP)','sig'],['g','b','offer (SDP)','sig']],
+  b:'<p>Aは「こういうメディアを、こういう条件で送れます」という提案を<b>SDP</b>というテキストで作ります。コーデック、暗号化に使う証明書のハッシュ、ICEの認証情報などが入っています。</p><p>この時点ではまだ相手のIPアドレスすら知りません。SDPはシグナリングサーバー経由で届けます。</p>',
+  p:{n:'SDPオファー(抜粋)',f:[t('バージョン','v=0'),t('発行元','o=- 4611731400430051336 2 IN IP4 127.0.0.1','セッションIDとバージョン'),t('束ね','a=group:BUNDLE 0 1','音声とデータを1つの通り道にまとめる'),t('音声メディア','m=audio 9 UDP/TLS/RTP/SAVPF 111','ポート9はダミー。実際の経路はICEで決まる'),t('ICEユーザー名','a=ice-ufrag:bXk1','接続確認のときの認証に使う'),t('ICEパスワード','a=ice-pwd:asd88fgpdd777uzjYhagZg',''),t('証明書指紋','a=fingerprint:sha-256 4A:AD:B9:…:58','DTLSで相手の証明書が本物かを確認する'),t('DTLSの役割','a=setup:actpass','クライアントにもサーバーにもなれる'),t('コーデック','a=rtpmap:111 opus/48000/2','ペイロード型111 = Opus'),t('データ','m=application 9 UDP/DTLS/SCTP webrtc-datachannel','DataChannel用')]}},
+ {t:'STUNで「外からの自分の住所」を知る',hops:[['a','t','Binding Request','ctl'],['t','a','Binding Response','ctl']],
+  b:'<p>家庭やオフィスの端末はNATの内側にいて、自分のグローバルIPを知りません。STUNサーバーに問い合わせると「外から見るとあなたは 203.0.113.5:54321 だ」と教えてくれます。これが<b>srflx候補</b>になります。</p><p>アドレスがXORされているのは、パケット内のIPを書き換えてしまうお節介なNATを避けるためです。</p>',
+  p:{n:'STUN Binding Success Response',f:[h('メッセージ型','01 01','Binding Success Response'),h('メッセージ長','00 0C','ヘッダー後の属性部が12バイト'),h('マジッククッキー','21 12 A4 42','固定値。STUNパケットの識別に使う'),h('トランザクションID','B7 E7 A7 01 BC 34 D6 86 FA 87 DF AE','リクエストと同じ12バイト'),h('属性型','00 20','XOR-MAPPED-ADDRESS'),h('属性長','00 08',''),h('予約 + ファミリ','00 01','IPv4'),h('ポート(XOR)','F5 23','0xF523 XOR 0x2112 = 54321'),h('アドレス(XOR)','EA 12 D5 47','クッキーとXOR → 203.0.113.5')]}},
+ {t:'アンサーが返ってくる',hops:[['b','b','createAnswer()','sig'],['b','g','answer (SDP)','sig'],['g','a','answer (SDP)','sig']],
+  b:'<p>Bはオファーの中から自分も使えるものを選び、アンサーを返します。<code>a=setup:active</code> で、DTLSハンドシェイクではBがクライアント役になると決まります。</p><p>このオファー/アンサーの往復が「SDPネゴシエーション」です。</p>',
+  p:{n:'SDPアンサー(抜粋)',f:[t('音声メディア','m=audio 9 UDP/TLS/RTP/SAVPF 111','Opusで合意'),t('ICEユーザー名','a=ice-ufrag:Ab3x','Bの認証情報'),t('ICEパスワード','a=ice-pwd:9uB6L3kQwXzN1fGh7tRpQe',''),t('証明書指紋','a=fingerprint:sha-256 9F:02:…:C1','Bの証明書のハッシュ'),t('DTLSの役割','a=setup:active','BがDTLSクライアントになる'),t('コーデック','a=rtpmap:111 opus/48000/2','')]}},
+ {t:'候補アドレスを少しずつ送る(Trickle ICE)',hops:[['a','g','candidate','sig'],['g','b','candidate','sig'],['b','g','candidate','sig'],['g','a','candidate','sig']],
+  b:'<p>候補(candidate)は見つかった順にすぐ送ります。全部揃うのを待たないので接続が速くなります。</p><p>候補の型は4種類。LANのアドレスそのまま(<code>host</code>)、STUNで分かった外側のアドレス(<code>srflx</code>)、通信中に発見したもの(<code>prflx</code>)、TURN中継のアドレス(<code>relay</code>)です。</p>',
+  p:{n:'ICE candidate',f:[t('foundation','candidate:842163049','同じ由来の候補をまとめる識別子',false),t('コンポーネント','1','1 = RTP',false),t('トランスポート','udp','',false),t('優先度','1677729535','型と回線から計算。高いほど先に試す',false),t('アドレス','203.0.113.5','',false),t('ポート','54321','',false),t('型','typ srflx','STUNで分かった外側のアドレス',false),t('関連アドレス','raddr 192.168.1.10 rport 54321','NATの内側の元アドレス',false)]}},
+ {t:'経路が通るか総当たりで確かめる',hops:[['a','b','STUN check','ctl'],['b','a','STUN success','ctl'],['b','a','STUN check','ctl'],['a','b','STUN success','ctl']],
+  b:'<p>自分の候補×相手の候補の全ペアに、優先度順でSTUNパケットを直接投げます。双方向に通ったペアが使える経路です。</p><p>パケットはSDPで交換したパスワードで署名されるので、第三者は偽の応答を返せません。最後にcontrolling側(ここではA)が経路を1つ選んで確定します。</p>',
+  p:{n:'STUN Binding Request(ICE接続確認)',f:[h('メッセージ型','00 01','Binding Request'),h('メッセージ長','00 44','属性部 68バイト'),h('マジッククッキー','21 12 A4 42',''),h('トランザクションID','6A 1F 0B … 3C','12バイト(省略)'),h('USERNAME','00 06 00 09','値は「Ab3x:bXk1」(相手のufrag:自分のufrag)'),h('PRIORITY','00 24 00 04','この経路が選ばれたときの優先度'),h('ICE-CONTROLLING','80 2A 00 08','Aが最終的な経路を決める側'),h('MESSAGE-INTEGRITY','00 08 00 14','相手の ice-pwd で計算したHMAC-SHA1'),h('FINGERPRINT','80 28 00 04','CRC-32。他のプロトコルと区別する')]},
+  note:'属性は「型・長さ」の4バイトだけを示し、値は省略しています。'},
+ {t:'DTLSで鍵を交換する',hops:[['b','a','ClientHello','ctl'],['a','b','ServerHello … Done','ctl'],['b','a','Certificate … Finished','ctl'],['a','b','Finished','ctl']],
+  b:'<p>DTLSはUDP版のTLSです。パケットが落ちても自前の再送タイマーでハンドシェイクを続けられます。</p><p>証明書は自己署名ですが、そのハッシュをSDPの <code>a=fingerprint</code> と照合することで「シグナリングで話した相手と同じ」と確かめます。ここで得た鍵がSRTPとDataChannelの暗号化に使われます。</p>',
+  p:{n:'DTLSレコード(ClientHello)',f:[h('コンテンツタイプ','16','22 = Handshake'),h('バージョン','FE FD','DTLS 1.2(TLSのバージョンの補数で表す)'),h('エポック','00 00','鍵が切り替わるたびに増える'),h('シーケンス番号','00 00 00 00 00 00','UDPなので並べ替え・重複検出用に明示'),h('長さ','00 B4','(例)'),h('ハンドシェイク型','01','ClientHello')]}},
+ {t:'SRTPで音声・映像が流れる',hops:[['a','b','SRTP 音声','med'],['b','a','SRTP 映像','med'],['a','b','SRTP 音声','med']],
+  b:'<p>ここからが本番。RTPヘッダーは平文で、中身だけが暗号化されています。受信側はシーケンス番号とタイムスタンプでジッターバッファを組み、到着順のばらつきを吸収します。</p><p>落ちたパケットは基本的に再送しません。遅れて届いた音は役に立たないからです。代わりにFEC(冗長データ)や、映像ならNACKでの限定的な再送を使います。</p>',
+  p:{n:'SRTPパケット',f:[h('V / P / X / CC','80','バージョン2、パディング・拡張なし'),h('M / ペイロード型','6F','PT=111(SDPでOpusと合意した番号)'),h('シーケンス番号','1A 2B','1パケットごとに+1。ロスと順序の検出に使う'),h('タイムスタンプ','00 00 3C 00','48kHzのサンプル単位。20msごとに+960'),h('SSRC','12 34 56 78','ストリームの識別子'),h('暗号化ペイロード','9C E1 … 07','暗号化されたOpusフレーム'),h('認証タグ','D4 0A … 6E','改ざん検知用')]}},
+ {t:'DataChannelを開く',hops:[['a','b','DATA_CHANNEL_OPEN','dat'],['b','a','DATA_CHANNEL_ACK','dat']],
+  b:'<p>DataChannelはUDP → DTLS → SCTP の上に乗った任意データの通り道です。チャネルごとに「順序を保証するか」「何回まで再送するか」を選べます。</p><p><code>{ordered:false, maxRetransmits:0}</code> にすればUDPのような使い方になり、ゲームの位置同期に向きます。</p>',
+  p:{n:'DCEP DATA_CHANNEL_OPEN',f:[h('メッセージ型','03','DATA_CHANNEL_OPEN'),h('チャネル型','00','0x00 = 信頼・順序保証。0x81なら再送回数制限・順不同'),h('優先度','00 00',''),h('信頼性パラメータ','00 00 00 00','再送回数、または寿命(ms)'),h('ラベル長','00 04',''),h('プロトコル長','00 00',''),h('ラベル','63 68 61 74','「chat」')]}},
+ {t:'直接つながらないときはTURNで中継',hops:[['a','t','Allocate','ctl'],['t','a','Allocate Success','ctl'],['a','t','ChannelData','med'],['t','b','UDP','med']],
+  b:'<p>両者が厳しいNATやファイアウォールの内側にいると、P2Pの経路がひとつも通りません。そのときはTURNサーバーにアドレスを借りて、全パケットを中継してもらいます。</p><p>中身はDTLS/SRTPのままなのでTURNには読めません。ただしサーバーの帯域を食うので、運用コストの大部分はここにかかります。</p>',
+  p:{n:'TURN ChannelData',f:[h('チャネル番号','40 00','0x4000〜0x4FFF。ChannelBindで相手アドレスと紐付け済み'),h('長さ','00 64','中身100バイト'),h('データ','80 6F 1A 2C …','中継されるSRTPパケットそのもの')]},
+  note:'ChannelDataのヘッダーは4バイト。Send Indication(36バイト以上)より軽いので、継続的な中継ではこちらを使います。'}
+ ]},
+
+{id:'game',tab:'ゲームのネットコード',
+ lead:'<b>対戦ゲームはUDPの上に自前のプロトコルを作るのが一般的です。</b>「全部届ける」より「最新の状態を最速で届ける」が大事なので、古い状態は捨て、必要なものだけ信頼性を足します。サーバー権威型で、60Hzのシミュレーションを想定しています。',
+ lanes:[['a','Client A','自分'],['s','サーバー','権威を持つ'],['b','Client B','対戦相手']],
+ steps:[
+ {t:'接続とチャレンジ',hops:[['a','s','CONNECT','ctl'],['s','a','CHALLENGE','ctl'],['a','s','RESPONSE','ctl'],['s','a','ACCEPT','ctl']],
+  b:'<p>UDPには接続の概念がないので、自分で作ります。サーバーはいきなり席を確保せず、まずチャレンジを返して「本当にそのアドレスで受信できるか」を確かめます。送信元を偽装した大量のCONNECTでサーバーを埋められないようにするためです。</p><p>CONNECTはわざと大きくパディングします。応答より小さいリクエストを許すと、増幅攻撃の踏み台にされるからです。</p>',
+  p:{n:'CONNECT',f:[h('プロトコルID','47 41 4D 45','「GAME」'),h('種別','10','CONNECT'),h('クライアントソルト','8A 3F 91 0C 55 E2 7B 14','乱数。以降の識別に使う'),h('パディング','00 00 … 00','応答より大きくして増幅攻撃に使わせない')]},note:GAME_NOTE},
+ {t:'入力を送る(冗長つき)',hops:[['a','s','INPUT t=8001','dat']],
+  b:'<p>クライアントが送るのは位置ではなく<b>入力</b>です。位置を送るとチートし放題になるからです。</p><p>毎パケットに直近3ティック分の入力を重ねて入れます。1つ落ちても次のパケットで補えるので、再送を待つ必要がありません。数バイトの冗長で遅延を消す、ゲームらしい割り切りです。</p>',
+  p:{n:'INPUT',f:[...gameHdr('04 12','00 C8','FF FF FF FF','01','INPUT'),h('ティック','00 00 1F 41','8001'),h('入力数','03','直近3ティック分'),h('入力 8001','09 40 00','ボタン(前進+ジャンプ) + 視点yaw(±180°を16bitに量子化)'),h('入力 8000','01 3F F0','前進のみ'),h('入力 7999','01 3F E0','前進のみ')]},note:GAME_NOTE},
+ {t:'クライアント側予測',hops:[['a','a','予測 t=8001','med']],
+  b:'<p>サーバーの返事を待ってからキャラを動かすと、往復分(例えば80ms)遅れて動いて気持ち悪くなります。そこで自分の入力はすぐ手元でもシミュレーションして画面に反映します。</p><p>送った入力はバッファに残しておきます。あとでサーバーの答えと食い違ったときに、やり直しに使うためです。</p>',
+  p:{n:'手元の入力バッファ',f:[t('t=7999','前進 → x=360.8','サーバー未確認'),t('t=8000','前進 → x=360.9','サーバー未確認'),t('t=8001','前進+ジャンプ → x=361.0','サーバー未確認')]}},
+ {t:'スナップショットが届く',hops:[['s','a','SNAPSHOT t=8004','med'],['s','b','SNAPSHOT t=8004','med']],
+  b:'<p>サーバーは20Hzほどで世界の状態を配ります。全部を毎回送ると重いので、2つの工夫をします。</p><p><b>量子化</b>:位置を32bit浮動小数ではなく1/64m単位の16bit整数にする。<b>差分圧縮</b>:相手がackした最新のスナップショット(ベースライン)から変わった項目だけを送る。どちらも数分の1に縮みます。</p>',
+  p:{n:'SNAPSHOT(Aあて)',f:[...gameHdr('00 D1','04 12','FF FF FF FF','02','SNAPSHOT'),h('サーバーティック','00 00 1F 44','8004'),h('ベースライン','00 00 1F 3E','差分の基準 7998(Aがackした最新)'),h('処理済み入力','00 00 1F 42','Aの入力を8002まで適用した'),h('エンティティ数','02','変化したものだけ'),h('ID(1件目)','00 07','プレイヤーB'),h('変更マスク','03','x と y が変化'),h('x','5A 40','23104 ÷ 64 = 361.0 m'),h('y','12 80','4736 ÷ 64 = 74.0 m'),h('ID(2件目)','00 03','樽'),h('変更マスク','04','回転だけ変化'),h('回転','7F','8bitに量子化')]},note:GAME_NOTE},
+ {t:'パケットが落ちても再送しない',hops:[['s','a','SNAPSHOT t=8007','med','lost'],['s','a','SNAPSHOT t=8010','med'],['a','s','INPUT (ack)','dat']],
+  b:'<p>t=8007のスナップショットが消えました。でも再送はしません。t=8010が届けばt=8007はもう古くて要らないからです。</p><p>Aの次のパケットのack bitsで、サーバーは「#210が届いていない」と知ります。次の差分はAが確実に持っているt=8004を基準に作り直します。TCPだとこの1つのロスで後続が全部止まりますが、UDPなら止まりません。</p>',
+  p:{n:'Aの次のパケットのヘッダー',f:gameHdr('04 1C','00 D3','FF FF FF FE','01','INPUT').map((f,i)=>i===2?h('ack','00 D3','受け取った最新:#211(t=8010)'):i===3?h('ack bits','FF FF FF FE','bit0が0 → #210(t=8007)が欠落'):f)},note:GAME_NOTE},
+ {t:'サーバーの答えと突き合わせる',hops:[['a','a','巻き戻し+再適用','med']],
+  b:'<p>スナップショットには「Aの入力をどこまで処理したか」が入っています。その時点のサーバーの位置に一度戻し、まだ確認されていない入力をもう一度シミュレーションし直します(リコンシリエーション)。</p><p>予測が合っていれば何も起きません。ずれていた場合も、一気にワープさせず数フレームかけて滑らかに寄せます。</p>',
+  p:{n:'リコンシリエーションの計算',f:[t('サーバー確定','x=361.0(入力8002まで適用済み)'),t('手元の予測','x=361.4','0.4mずれていた'),t('巻き戻し','確定位置 x=361.0 に戻す'),t('再適用','入力 8003, 8004, 8005 を再シミュレーション','未確認の入力だけ'),t('結果','x=361.1','描画は数フレームかけて補正')]}},
+ {t:'相手は少し過去を描く(補間)',hops:[['b','b','描画 t−100ms','med']],
+  b:'<p>他のプレイヤーの入力は予測できません。そこで相手のキャラは約100ms(スナップショット2つ分)遅らせて、届いた2つのスナップショットの間を補間して描きます。</p><p>常に「前」と「次」の両方が手元にあるので、パケットが1つ落ちてもカクつきません。その代わり、画面の相手は少しだけ過去にいます。</p>',
+  p:{n:'補間の計算(Bの画面のプレイヤーA)',f:[t('現在の時刻','t=8012'),t('描画する時刻','t=8006','6ティック = 100ms 前'),t('前のスナップショット','t=8004 x=361.0'),t('次のスナップショット','t=8010 x=362.5'),t('補間結果','x=361.5','8004〜8010 の 1/3 地点を線形補間')]}},
+ {t:'撃った瞬間まで巻き戻して判定(ラグ補償)',hops:[['b','s','FIRE','dat'],['s','s','当たり判定を巻き戻し','med'],['s','b','HIT','dat'],['s','a','DAMAGE','dat']],
+  b:'<p>Bの画面のAは100ms過去にいます。そのまま現在のAに当たり判定をすると、ちゃんと狙ったのに外れます。サーバーはFIREに入っている描画ティックまで全員の当たり判定を巻き戻して判定します。</p><p>代償として、撃たれた側は「壁に隠れたのに当たった」と感じることがあります。巻き戻せる時間に上限を設けるのが普通です。</p>',
+  p:{n:'FIRE',f:[...gameHdr('02 9A','00 D5','FF FF FF FF','03','FIRE'),h('発射ティック','00 00 1F 4C','8012'),h('描画ティック','00 00 1F 46','8006。Bが見ていた過去の世界'),h('射撃方向','3A 10 F8 02','yaw / pitch 各16bit')]},note:GAME_NOTE},
+ {t:'必要なものだけ信頼性を足す',hops:[['a','s','CHAT #5','dat','lost'],['a','s','INPUT + CHAT #5','dat'],['s','a','SNAPSHOT (ack)','med']],
+  b:'<p>チャットやアイテム取得のように「必ず届けたい」ものもあります。そうしたメッセージは、ackで受信が確認されるまで毎回の送信パケットに相乗りさせます。追加のパケットを増やさずに済みます。</p><p>大事なのは、チャットが1つ落ちても位置の同期は止まらないこと。TCPでは1本の流れの中で全部が待たされる(ヘッドオブラインブロッキング)ので、ここが自作する一番の理由です。</p>',
+  p:{n:'信頼メッセージ部分',f:[h('種別','20','RELIABLE'),h('メッセージID','00 05','再送しても同じID。受信側で重複を捨てる'),h('長さ','02',''),h('本文','67 67','「gg」')]},note:GAME_NOTE}
+ ]},
+
+{id:'webtransport',tab:'WebTransport',
+ lead:'<b>ブラウザからUDPに近い通信を使うための新しい選択肢。</b>HTTP/3(QUIC)の上で動き、信頼性のない「データグラム」と、互いに独立した「ストリーム」を1つの暗号化接続で使い分けられます。ゲーム章のUDPパケットをそのまま運べます。',
+ lanes:[['c','ブラウザ','new WebTransport()'],['s','サーバー','HTTP/3']],
+ steps:[
+ {t:'QUIC + TLS 1.3 を1往復で',hops:[['c','s','Initial: ClientHello','ctl'],['s','c','Initial + Handshake','ctl'],['c','s','Handshake: Finished','ctl']],
+  b:'<p>QUICは接続確立と暗号化の鍵交換を同時に行います。TCP + TLS 1.3 なら2往復かかるところが1往復です。</p><p>最初のInitialパケットは1200バイト以上にパディングされます。これも増幅攻撃対策と、経路のMTU確認を兼ねています。</p>',
+  p:{n:'QUIC Initialパケット(ロングヘッダー)',f:[h('先頭バイト','C3','ロングヘッダー、タイプ=Initial、PN長4バイト'),h('バージョン','00 00 00 01','QUIC v1'),h('宛先CID長','08',''),h('宛先CID','83 94 C8 F0 3E 51 57 08','接続ID。IPが変わっても接続を識別できる'),h('送信元CID長','08',''),h('送信元CID','F0 67 A5 50 2A 42 62 B5',''),h('トークン長','00',''),h('長さ','44 9E','2バイトvarint → 1182'),h('パケット番号','00 00 00 00','ヘッダー保護で隠される'),h('暗号化ペイロード','…','CRYPTOフレーム(ClientHello)とPADDING')]}},
+ {t:'拡張CONNECTでセッションを開く',hops:[['c','s','CONNECT webtransport','ctl'],['s','c',':status 200','ctl']],
+  b:'<p>HTTP/3のリクエストで「このストリームをWebTransportセッションにしたい」と頼みます。WebSocketのUpgradeとよく似た発想です。</p><p>このリクエストが流れたストリームのIDが、そのままセッションIDになります。1つのQUIC接続に複数のセッションを相乗りさせることもできます。</p>',
+  p:{n:'HTTP/3 ヘッダー(QPACK展開後)',f:[t(':method',':method = CONNECT'),t(':protocol',':protocol = webtransport','拡張CONNECTの印'),t(':scheme',':scheme = https'),t(':authority',':authority = game.example'),t(':path',':path = /play'),t('origin','origin = https://game.example','サーバーがオリジンを検証する')]}},
+ {t:'データグラムで状態を送る',hops:[['c','s','DATAGRAM: 入力','dat'],['s','c','DATAGRAM: 状態','med'],['s','c','DATAGRAM: 状態','med','lost'],['s','c','DATAGRAM: 状態','med']],
+  b:'<p>データグラムは再送も順序保証もない、UDPと同じ性質の送信手段です。違いは、暗号化と輻輳制御がついていて、同じ接続の中を通ること。</p><p>1つのデータグラムはパケット1つに収まる大きさ(だいたい1200バイト前後)まで。ゲームの入力やスナップショットにちょうどいい道具です。</p>',
+  p:{n:'1-RTTパケット(復号後)',f:[h('先頭バイト','43','ショートヘッダー、PN長4バイト'),h('宛先CID','83 94 C8 F0 3E 51 57 08',''),h('パケット番号','00 00 00 2A',''),h('フレーム型','30','DATAGRAM(長さフィールドなし)'),h('Quarter Stream ID','00','セッションのストリームID 0 ÷ 4'),h('ペイロード','47 41 4D 45 …','ゲームのパケットをそのまま載せられる')]},
+  note:'実際のパケットは先頭バイトの一部とパケット番号以降が暗号化されています。ここでは復号後の姿を示しています。'},
+ {t:'独立したストリームで確実に送る',hops:[['c','s','stream 4: チャット','dat'],['s','c','stream 3: マップ','dat']],
+  b:'<p>ストリームは順序と到着が保証される通り道です。TCPと違うのは、ストリーム同士が独立していること。マップデータのパケットが落ちても、チャットのストリームは止まりません。</p><p>「状態はデータグラム、確実に届けたいものはストリーム」と使い分けるのが基本形です。</p>',
+  p:{n:'STREAMフレーム',f:[h('フレーム型','0A','STREAM(長さフィールドあり)'),h('ストリームID','04','クライアントが開いた双方向ストリーム'),h('長さ','05',''),h('WTシグナル','40 41','WebTransportの双方向ストリームの印'),h('セッションID','00','どのセッションに属するか'),h('データ','68 69','「hi」')]}},
+ {t:'回線が変わっても切れない',hops:[['c','s','PATH_CHALLENGE','ctl'],['s','c','PATH_RESPONSE','ctl']],
+  b:'<p>Wi-Fiからモバイル回線に切り替わると、IPアドレスもポートも変わります。TCPならここで接続が切れ、WebSocketは再接続からやり直しです。</p><p>QUICは接続IDで相手を識別するので、新しいアドレスから届いたパケットも同じ接続として扱えます。乗っ取りを防ぐため、新しい経路で本当に受信できるかを乱数の往復で確かめます。</p>',
+  p:{n:'PATH_CHALLENGEフレーム',f:[h('フレーム型','1A','PATH_CHALLENGE'),h('データ','3D 7A 90 E1 05 B2 C8 44','8バイトの乱数。相手はそのままPATH_RESPONSEで返す')]}}
+ ]}
+];
+
+const KIND={ctl:'var(--blue)',sig:'var(--ochre)',med:'var(--mag)',dat:'var(--teal)'};
+const $=id=>document.getElementById(id);
+const NS='http://www.w3.org/2000/svg';
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let L=null, S=0, rows=[], laneX={}, playTimer=null, animToken=0;
+
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+
+function buildTabs(){
+  const nav=$('tabs');nav.innerHTML='';
+  LESSONS.forEach(l=>{const b=document.createElement('button');b.textContent=l.tab;b.dataset.id=l.id;b.onclick=()=>{location.hash=l.id};nav.appendChild(b)});
+}
+
+function buildDiagram(){
+  const svg=$('svg');svg.innerHTML='';
+  const n=L.lanes.length, gap=n===2?280:n===3?200:160, padL=64, padR=56;
+  const W=padL+padR+gap*(n-1);
+  L.lanes.forEach(([id],i)=>laneX[id]=padL+i*gap);
+  const defs=el('defs',{},svg);
+  for(const k in KIND){const m=el('marker',{id:'ah-'+k,viewBox:'0 0 10 10',refX:'9',refY:'5',markerWidth:'7',markerHeight:'7',orient:'auto-start-reverse'},defs);el('path',{d:'M0,0 L10,5 L0,10 z',style:'fill:'+KIND[k]},m)}
+  rows=[];let y=78;
+  const groups=[];
+  L.steps.forEach((st,si)=>{
+    const g=el('g',{class:'st','data-s':si});groups.push(g);
+    g.addEventListener('click',()=>go(si));
+    const y0=y;
+    st.hops.forEach((hp,hi)=>{rows.push({si,hi,y,hp});y+=38});
+    st._y0=y0;st._y1=y-38;
+    y+=14;
+  });
+  const H=y+10;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.style.maxWidth=Math.round(W*1.3)+'px';
+  svg.setAttribute('aria-label',L.tab+'のシーケンス図');
+  L.lanes.forEach(([id,name,sub])=>{
+    const x=laneX[id];
+    el('line',{x1:x,y1:52,x2:x,y2:H-6,style:'stroke:var(--rule);stroke-width:1.5'},svg);
+    const tn=el('text',{x,y:24,'text-anchor':'middle',style:'fill:var(--ink);font-size:14px;font-weight:700'},svg);tn.textContent=name;
+    const ts=el('text',{x,y:42,'text-anchor':'middle',style:'fill:var(--muted);font-size:11px'},svg);ts.textContent=sub;
+  });
+  groups.forEach((g,si)=>{
+    svg.appendChild(g);
+    const st=L.steps[si];
+    el('circle',{cx:22,cy:st._y0,r:11,style:'fill:var(--panel);stroke:var(--ink);stroke-width:1.2'},g);
+    const nt=el('text',{x:22,y:st._y0+4,'text-anchor':'middle',style:'fill:var(--ink);font-size:11px;font-weight:700'},g);nt.textContent=si+1;
+    if(st._y1>st._y0)el('line',{x1:22,y1:st._y0+11,x2:22,y2:st._y1,style:'stroke:var(--rule);stroke-width:1'},g);
+  });
+  rows.forEach(r=>{
+    const g=groups[r.si];const [f,to,label,kind,flag]=r.hp;const col=KIND[kind];
+    const hg=el('g',{class:'hop'},g);r.g=hg;
+    if(f===to){
+      const x=laneX[f];const w=label.length*11+20;
+      el('rect',{x:x-w/2,y:r.y-12,width:w,height:24,rx:5,style:`fill:var(--panel);stroke:${col};stroke-width:1.4`},hg);
+      const tx=el('text',{x,y:r.y+4,'text-anchor':'middle',style:`fill:${col};font-size:11.5px;font-weight:500`},hg);tx.textContent=label;
+      r.x1=r.x2=x;
+    }else{
+      const x1=laneX[f],x2=laneX[to],dir=Math.sign(x2-x1);
+      const sx=x1+dir*4,ex=x2-dir*4;
+      r.x1=sx;r.x2=ex;
+      if(flag==='lost'){
+        const mx=(sx+ex)/2;r.lost=mx;
+        el('line',{x1:sx,y1:r.y,x2:mx,y2:r.y,style:`stroke:${col};stroke-width:1.6;stroke-dasharray:4 4`},hg);
+        const c=el('g',{style:`stroke:var(--mag);stroke-width:2`},hg);
+        el('line',{x1:mx-6,y1:r.y-6,x2:mx+6,y2:r.y+6},c);el('line',{x1:mx-6,y1:r.y+6,x2:mx+6,y2:r.y-6},c);
+      }else{
+        el('line',{x1:sx,y1:r.y,x2:ex,y2:r.y,'marker-end':`url(#ah-${kind})`,style:`stroke:${col};stroke-width:1.6`},hg);
+      }
+      const tx=el('text',{x:(sx+ex)/2,y:r.y-7,'text-anchor':'middle',style:`fill:${col};font-size:11.5px;font-weight:500;paint-order:stroke;stroke:var(--panel);stroke-width:4px;stroke-linejoin:round`},hg);
+      tx.textContent=label+(flag==='lost'?'(消失)':'');
+    }
+  });
+  const dot=el('circle',{r:5.5,cx:-20,cy:-20,id:'dot'},svg);
+  svg._dot=dot;svg._groups=groups;
+}
+
+function animateStep(){
+  const token=++animToken;const svg=$('svg');const dot=svg._dot;
+  const myRows=rows.filter(r=>r.si===S);
+  if(reduce){myRows.forEach(r=>r.g.classList.remove('wait'));dot.setAttribute('cx',-20);return}
+  myRows.forEach(r=>r.g.classList.add('wait'));
+  let i=0;
+  const next=()=>{
+    if(token!==animToken)return;
+    if(i>=myRows.length){dot.setAttribute('cx',-20);return}
+    const r=myRows[i++];const [, , , kind]=r.hp;
+    dot.style.fill=KIND[kind];
+    if(r.x1===r.x2){r.g.classList.remove('wait');setTimeout(next,260);return}
+    const end=r.lost!==undefined?r.lost:r.x2;
+    const dur=Math.min(900,320+Math.abs(end-r.x1)*1.4);const t0=performance.now();
+    const tick=now=>{
+      if(token!==animToken)return;
+      const p=Math.min(1,(now-t0)/dur),e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
+      dot.setAttribute('cx',r.x1+(end-r.x1)*e);dot.setAttribute('cy',r.y);
+      if(p<1)requestAnimationFrame(tick);else{r.g.classList.remove('wait');dot.setAttribute('cx',-20);setTimeout(next,120)}
+    };
+    requestAnimationFrame(tick);
+  };
+  next();
+}
+
+function renderInspector(st){
+  const p=st.p;$('pname').innerHTML='';
+  const raw=$('praw'),tb=$('pfields');raw.innerHTML='';tb.innerHTML='';
+  const nt=$('pnote');if(st.note){nt.hidden=false;nt.textContent=st.note}else nt.hidden=true;
+  if(!p){$('pname').textContent='パケットなし';raw.innerHTML='<div class="empty">この手順は手元の処理だけで、ネットワークには何も流れません。</div>';return}
+  const total=p.f.reduce((a,f)=>a+(f.x?f.x.split(' ').filter(b=>/^[0-9A-F]{2}$/.test(b)).length:0),0);
+  $('pname').innerHTML='';const nm=document.createElement('span');nm.style.color='var(--ink)';nm.style.fontWeight='500';nm.textContent=p.n;$('pname').appendChild(nm);
+  if(total){const sz=document.createElement('span');sz.textContent=total+' バイト表示';$('pname').appendChild(sz)}
+  const box=document.createElement('div');box.className='raw';
+  p.f.forEach((f,i)=>{
+    const cls='c'+(i%6);
+    if(f.x){f.x.split(' ').forEach(b=>{const s=document.createElement('span');s.className='byte '+cls;s.dataset.f=i;s.textContent=b;box.appendChild(s)})}
+    else{const s=document.createElement('span');s.className='tok '+cls;s.dataset.f=i;s.textContent=f.v;box.appendChild(s);if(f.br){const b=document.createElement('span');b.className='br';box.appendChild(b)}}
+  });
+  raw.appendChild(box);
+  p.f.forEach((f,i)=>{
+    const tr=document.createElement('tr');tr.dataset.f=i;
+    tr.innerHTML=`<td><i class="c${i%6}"></i></td><td class="fn"></td><td class="fd"></td>`;
+    tr.children[1].textContent=f.n;
+    const d=tr.children[2];
+    if(f.x){const v=document.createElement('div');v.className='fv';v.textContent=f.x;d.appendChild(v)}
+    if(f.d){const dd=document.createElement('div');dd.textContent=f.d;d.appendChild(dd)}
+    tb.appendChild(tr);
+  });
+  const hl=(i,on)=>{document.querySelectorAll(`#praw [data-f="${i}"],#pfields tr[data-f="${i}"]`).forEach(e=>e.classList.toggle('hot',on))};
+  document.querySelectorAll('#praw [data-f],#pfields tr').forEach(e=>{
+    e.addEventListener('mouseenter',()=>hl(e.dataset.f,true));
+    e.addEventListener('mouseleave',()=>hl(e.dataset.f,false));
+  });
+}
+
+function go(i,fromPlay){
+  if(!fromPlay)stopPlay();
+  S=Math.max(0,Math.min(L.steps.length-1,i));
+  const st=L.steps[S];
+  $('stepnum').textContent=`手順 ${S+1} / ${L.steps.length}`;
+  $('steptitle').textContent=st.t;
+  $('stepbody').innerHTML=st.b;
+  $('prev').disabled=S===0;$('next').disabled=S===L.steps.length-1;
+  [...$('dots').children].forEach((d,k)=>{d.classList.toggle('on',k===S);d.setAttribute('aria-current',k===S?'step':'false')});
+  $('svg')._groups.forEach((g,k)=>{g.classList.toggle('cur',k===S);g.classList.toggle('past',k<S);g.classList.toggle('fut',k>S)});
+  renderInspector(st);
+  const sc=$('scroll'),svg=$('svg');const scale=svg.getBoundingClientRect().width/svg.viewBox.baseVal.width;
+  const top=st._y0*scale-90;
+  sc.scrollTo({top:Math.max(0,top),behavior:reduce?'auto':'smooth'});
+  animateStep();
+}
+
+function stopPlay(){if(playTimer){clearInterval(playTimer);playTimer=null}$('play').textContent='自動再生'}
+function togglePlay(){
+  if(playTimer){stopPlay();return}
+  if(S===L.steps.length-1)go(0);
+  $('play').textContent='一時停止';
+  playTimer=setInterval(()=>{if(S>=L.steps.length-1){stopPlay();return}go(S+1,true)},5200);
+}
+
+function loadLesson(){
+  const id=(location.hash||'').slice(1);
+  L=LESSONS.find(l=>l.id===id)||LESSONS[0];
+  stopPlay();
+  [...$('tabs').children].forEach(b=>b.setAttribute('aria-current',b.dataset.id===L.id?'true':'false'));
+  $('lead').innerHTML=L.lead;
+  document.title=L.tab+' · リアルタイム通信を、1パケットずつ';
+  const dots=$('dots');dots.innerHTML='';
+  L.steps.forEach((s,k)=>{const d=document.createElement('i');d.tabIndex=0;d.title=`${k+1}. ${s.t}`;d.setAttribute('role','button');d.setAttribute('aria-label',`手順${k+1}: ${s.t}`);d.onclick=()=>go(k);d.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go(k)}};dots.appendChild(d)});
+  buildDiagram();
+  go(0);
+}
+
+buildTabs();
+$('prev').onclick=()=>go(S-1);
+$('next').onclick=()=>go(S+1);
+$('play').onclick=togglePlay;
+document.addEventListener('keydown',e=>{
+  if(e.target.closest('input,textarea'))return;
+  if(e.key==='ArrowRight'){go(S+1)}else if(e.key==='ArrowLeft'){go(S-1)}
+});
+addEventListener('hashchange',loadLesson);
+addEventListener('resize',()=>{});
+loadLesson();
+</script>
+</body>
+</html>
