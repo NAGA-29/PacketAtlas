@@ -1,0 +1,114 @@
+.insp {
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.head {
+  margin: 0;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--muted);
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.name { color: var(--ink); font-weight: 500; }
+.empty { padding: 22px 20px; color: var(--muted); }
+
+.layers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  list-style: none;
+  margin: 0;
+  padding: 10px 20px 0;
+  font-size: 12px;
+  font-family: var(--font-mono);
+}
+.layers { gap: 4px 16px; }
+.layers li {
+  position: relative;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 0 8px;
+  color: var(--muted);
+}
+.layers li + li::before { content: '›'; position: absolute; left: -11px; color: var(--muted); }
+.layers li.inner { color: var(--ink); border-color: var(--ink); }
+
+.notices { padding: 10px 20px 0; font-size: 12.5px; }
+.notices p { margin: 0 0 4px; padding: 6px 10px; border-radius: 6px; border-left: 3px solid; }
+.fictional { border-color: var(--ochre) !important; background: var(--f3); color: var(--f3i); }
+.decrypted { border-color: var(--teal) !important; background: var(--f2); color: var(--f2i); }
+
+.raw {
+  padding: 16px 20px;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 2.1;
+  overflow-x: auto;
+}
+.byte, .tok {
+  display: inline-block;
+  padding: 0 4px;
+  margin: 0 2px 0 0;
+  border-radius: 3px;
+  cursor: default;
+  line-height: 1.7;
+}
+.tok { white-space: pre-wrap; word-break: break-all; }
+.br { display: block; height: 0; }
+.hot { outline: 2px solid var(--ink); outline-offset: -1px; }
+
+.fields { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.fields td { padding: 8px 12px; border-top: 1px solid var(--rule); vertical-align: top; }
+.fields tr:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
+.fields tr.hot td { background: var(--grid); }
+.sw { width: 10px; padding-right: 0 !important; }
+.sw i { display: block; width: 10px; height: 10px; border-radius: 2px; margin-top: 6px; }
+.fn { font-weight: 500; white-space: nowrap; }
+.fd { color: var(--muted); }
+.fv {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  word-break: break-all;
+  color: var(--ink);
+}
+.bitsBtn {
+  font: inherit;
+  font-size: 12px;
+  margin-top: 4px;
+  padding: 1px 8px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+.bitsBtn:hover { border-color: var(--ink); }
+.bitsRow td { border-top: 0 !important; padding-top: 0 !important; }
+
+.bits { display: grid; gap: 2px; font-size: 11px; }
+.bit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 3px 2px;
+  min-width: 0;
+}
+.bitVal { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink); letter-spacing: 0.1em; }
+.bitName { font-weight: 500; color: var(--ink); overflow-wrap: anywhere; }
+.bitDesc { color: var(--muted); overflow-wrap: anywhere; line-height: 1.4; }
+
+.note { font-size: 12.5px; color: var(--muted); padding: 10px 20px; border-top: 1px solid var(--rule); }
+
+@media (max-width: 480px) {
+  .fn { white-space: normal; }
+  .fields td { padding: 8px; }
+}

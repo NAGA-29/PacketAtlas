@@ -1,0 +1,79 @@
+.step {
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+}
+.num { font-size: 13px; color: var(--muted); }
+.title { font-size: 21px; line-height: 1.35; margin: 2px 0 10px; font-weight: 700; }
+.body p { margin: 0 0 0.7em; max-width: 62ch; }
+.body p:last-child { margin-bottom: 0; }
+
+.controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule);
+}
+.controls button {
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 6px 14px;
+  cursor: pointer;
+}
+.controls button:hover:not(:disabled) { border-color: var(--ink); }
+.controls button:disabled { opacity: 0.35; cursor: default; }
+.controls .primary { background: var(--ink); color: var(--panel); border-color: var(--ink); min-width: 6.5em; }
+
+.speed { display: flex; }
+.controls .speedBtn { padding: 4px 8px; font-size: 12px; border-radius: 0; margin-left: -1px; font-family: var(--font-mono); }
+.controls .speedBtn:first-child { border-radius: 6px 0 0 6px; margin-left: 0; }
+.controls .speedBtn:last-child { border-radius: 0 6px 6px 0; }
+.controls .speedBtn[aria-pressed='true'] { background: var(--grid); border-color: var(--ink); position: relative; }
+
+.dots { display: flex; gap: 2px; margin: 0 0 0 auto; padding: 0; list-style: none; flex-wrap: wrap; justify-content: flex-end; }
+.controls .dots button {
+  width: 19px;
+  height: 19px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  position: relative;
+}
+.controls .dots button::after {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  background: var(--rule);
+}
+.controls .dots button.on::after { background: var(--ink); }
+.controls .dots button:hover::after { background: var(--muted); }
+.controls .dots button.on:hover::after { background: var(--ink); }
+
+/* スマホ:操作ボタンを画面下に固定 */
+@media (max-width: 900px) {
+  .controls {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 5;
+    margin: 0;
+    padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px));
+    background: var(--panel);
+    border-top: 1px solid var(--rule);
+    box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.06);
+  }
+  .dots { display: none; }
+  .speed { margin-left: auto; }
+}
