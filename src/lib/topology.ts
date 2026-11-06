@@ -1,9 +1,12 @@
 // つながり図の配置(純粋関数)。レーンを機器として置き、ホップから通信する組を線にする
 import type { HopKind, Lesson } from '@/lessons/types';
 import { laneLabelWidth } from './diagram';
+import { deviceIcon } from './device';
 
 export const NODE_W = 150;
-export const NODE_H = 54;
+export const NODE_H = 58;
+/** 箱の左に置くアイコンの分の幅 */
+export const ICON_SPACE = 34;
 
 export interface TopoNode {
   id: string;
@@ -54,7 +57,10 @@ export const layoutTopology = (lesson: Pick<Lesson, 'lanes' | 'steps'>): Topolog
   let height: number;
   let hub: string | undefined;
 
-  const boxW = (id: string) => Math.max(NODE_W, Math.ceil(laneLabelWidth(lesson.lanes.find((l) => l.id === id)) + 24));
+  const boxW = (id: string) => {
+    const lane = lesson.lanes.find((l) => l.id === id);
+    return Math.max(NODE_W, Math.ceil(laneLabelWidth(lane) + 24 + (lane && deviceIcon(lane) ? ICON_SPACE : 0)));
+  };
 
   if (n <= 2 || isPath) {
     // 箱の幅に合わせて間隔を決める(線の長さを最低でも LINK 確保する)

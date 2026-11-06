@@ -1,28 +1,79 @@
 'use client';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import type { HopKind, Lesson } from '@/lessons/types';
-import { activeEdges, clipToBoxes, labelPosition, layoutTopology, NODE_H } from '@/lib/topology';
+import { activeEdges, clipToBoxes, ICON_SPACE, labelPosition, layoutTopology, NODE_H } from '@/lib/topology';
+import { deviceIcon } from '@/lib/device';
 import { dict, type Locale } from '@/lib/i18n';
 import { KIND_COLOR } from '../SequenceDiagram/SequenceDiagram';
+import { DeviceGlyph } from '../DeviceGlyph';
 import styles from './TopologyView.module.css';
 
 interface Props {
   lesson: Pick<Lesson, 'id' | 'title' | 'lanes' | 'steps'>;
   locale: Locale;
   current: number;
+  speed: number;
+  reducedMotion: boolean;
   onSelect?: (step: number) => void;
 }
 
-/** 機器を箱、通信する組を線で示す。今の手順で使う線を色と矢印で強調する */
-export function TopologyView({ lesson, locale, current, onSelect }: Props) {
+const ease = (p: number) => (p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2);
+
+/** 機器を箱、通信する組を線で示す。今の手順で使う線を色と矢印で強調し、パケットを順に動かす */
+export function TopologyView({ lesson, locale, current, speed, reducedMotion, onSelect }: Props) {
   const t = dict(locale);
   const layout = useMemo(() => layoutTopology(lesson), [lesson]);
   const active = useMemo(() => activeEdges(lesson, current), [lesson, current]);
+  const dotRef = useRef<SVGCircleElement>(null);
   const step = lesson.steps[current];
   const selfHops = (step?.hops ?? []).filter((h) => h.from === h.to);
   const involved = new Set((step?.hops ?? []).flatMap((h) => [h.from, h.to]));
   const node = (id: string) => layout.nodes.find((n) => n.id === id);
   const kinds = Object.keys(KIND_COLOR) as HopKind[];
+
+  // 今の手順のホップを順に、点が線に沿って動く(消失するものは途中で止まる)
+  useEffect(() => {
+    const dot = dotRef.current;
+    if (!dot || reducedMotion) return;
+    const hops = (step?.hops ?? []).filter((h) => h.from !== h.to);
+    let cancelled = false;
+    let raf = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const hide = () => dot.setAttribute('cx', '-20');
+    const run = (i: number) => {
+      const h = hops[i];
+      const p = h && node(h.from);
+      const q = h && node(h.to);
+      if (cancelled || !h || !p || !q) return hide();
+      const [x1, y1, x2, y2] = clipToBoxes(p, q);
+      const ex = h.lost ? (x1 + x2) / 2 : x2;
+      const ey = h.lost ? (y1 + y2) / 2 : y2;
+      dot.style.fill = KIND_COLOR[h.kind];
+      const dur = Math.min(900, 320 + Math.hypot(ex - x1, ey - y1) * 1.4) / speed;
+      const t0 = performance.now();
+      const tick = (now: number) => {
+        if (cancelled) return;
+        const k = ease(Math.min(1, (now - t0) / dur));
+        dot.setAttribute('cx', String(x1 + (ex - x1) * k));
+        dot.setAttribute('cy', String(y1 + (ey - y1) * k));
+        if (k < 1) raf = requestAnimationFrame(tick);
+        else {
+          hide();
+          timer = setTimeout(() => run(i + 1), 160 / speed);
+        }
+      };
+      raf = requestAnimationFrame(tick);
+    };
+    run(0);
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(raf);
+      if (timer) clearTimeout(timer);
+      hide();
+    };
+    // node は layout から決まるので layout を依存に含める
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, layout, speed, reducedMotion]);
 
   return (
     <div className={styles.wrap}>
@@ -54,7 +105,7 @@ export function TopologyView({ lesson, locale, current, onSelect }: Props) {
                 y1={y1}
                 x2={x2}
                 y2={y2}
-                style={{ stroke: col, strokeWidth: a ? 2.6 : 1.6, strokeDasharray: a?.lost ? '5 4' : undefined }}
+                style={{ stroke: col, strokeWidth: a ? 2.6 : 1.6, strokeDasharray: a?.lost ? '5 4' : a ? undefined : '2 5' }}
                 markerEnd={a?.forward ? marker : undefined}
                 markerStart={a?.backward ? marker : undefined}
               />
@@ -69,13 +120,22 @@ export function TopologyView({ lesson, locale, current, onSelect }: Props) {
         })}
         {layout.nodes.map((n) => {
           const lane = lesson.lanes.find((l) => l.id === n.id);
+          const icon = lane && deviceIcon(lane);
           const on = involved.has(n.id);
           const self = selfHops.find((h) => h.from === n.id);
+          const left = n.x - n.w / 2;
+          const tx = icon ? n.x + ICON_SPACE / 2 : n.x;
           return (
-            <g key={n.id}>
-              <rect x={n.x - n.w / 2} y={n.y - NODE_H / 2} width={n.w} height={NODE_H} rx={8} className={on ? styles.nodeOn : styles.node} />
-              <text x={n.x} y={n.y - 4} textAnchor="middle" className={styles.name}>{lane?.name}</text>
-              {lane?.sub && <text x={n.x} y={n.y + 14} textAnchor="middle" className={styles.sub}>{lane.sub}</text>}
+            <g key={n.id} className={on ? styles.on : undefined}>
+              <rect x={left} y={n.y - NODE_H / 2} width={n.w} height={NODE_H} rx={10} className={styles.node} />
+              {icon && (
+                <>
+                  <rect x={left + 8} y={n.y - 17} width={34} height={34} rx={8} className={styles.iconBg} />
+                  <DeviceGlyph icon={icon} x={left + 13} y={n.y - 12} className={styles.icon} />
+                </>
+              )}
+              <text x={tx} y={n.y - 3} textAnchor="middle" className={styles.name}>{lane?.name}</text>
+              {lane?.sub && <text x={tx} y={n.y + 15} textAnchor="middle" className={styles.sub}>{lane.sub}</text>}
               {self && (
                 <text x={n.x} y={n.y + NODE_H / 2 + 18} textAnchor="middle" className={styles.edgeLabel} style={{ fill: KIND_COLOR[self.kind] }}>
                   {self.label}
@@ -84,6 +144,7 @@ export function TopologyView({ lesson, locale, current, onSelect }: Props) {
             </g>
           );
         })}
+        <circle ref={dotRef} r={6} cx={-20} cy={-20} className={styles.dot} aria-hidden="true" />
       </svg>
       <p className={styles.hint}>{t.topologyHint}</p>
     </div>

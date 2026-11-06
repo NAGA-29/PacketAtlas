@@ -3,8 +3,10 @@ import type { Hop, Lesson } from '@/lessons/types';
 
 export const ROW_H = 38;
 export const STEP_GAP = 14;
-export const TOP = 78;
-export const LANE_TOP = 52;
+/** レーン見出し:アイコン(0〜28)、名前、補足の下から線が始まる */
+export const ICON_TOP = 4;
+export const LANE_TOP = 76;
+export const TOP = 102;
 
 export interface HopRow {
   step: number;

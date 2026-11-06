@@ -1,7 +1,9 @@
 'use client';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { HopKind, Lesson } from '@/lessons/types';
-import { LANE_TOP, layoutDiagram, selfBoxWidth } from '@/lib/diagram';
+import { ICON_TOP, LANE_TOP, layoutDiagram, selfBoxWidth } from '@/lib/diagram';
+import { deviceIcon } from '@/lib/device';
+import { DeviceGlyph } from '../DeviceGlyph';
 import { dict, type Locale } from '@/lib/i18n';
 import { TopologyView } from '../TopologyView/TopologyView';
 import { useDiagramView } from '../prefs';
@@ -117,7 +119,7 @@ export function SequenceDiagram({ lesson, locale, current, speed, reducedMotion,
           ))}
         </div>
       )}
-      {view === 'topology' && <TopologyView lesson={lesson} locale={locale} current={current} onSelect={onSelect} />}
+      {view === 'topology' && <TopologyView lesson={lesson} locale={locale} current={current} speed={speed} reducedMotion={reducedMotion} onSelect={onSelect} />}
       <div hidden={view !== 'sequence'} className={styles.scroll} ref={scrollRef} style={maxHeight ? { maxHeight } : undefined} tabIndex={0} role="region" aria-label={t.diagramOf(lesson.title)}>
         <svg
           ref={svgRef}
@@ -138,8 +140,12 @@ export function SequenceDiagram({ lesson, locale, current, speed, reducedMotion,
             return (
               <g key={lane.id}>
                 <line x1={x} y1={LANE_TOP} x2={x} y2={layout.height - 6} className={styles.lane} />
-                <text x={x} y={24} textAnchor="middle" className={styles.laneName}>{lane.name}</text>
-                {lane.sub && <text x={x} y={42} textAnchor="middle" className={styles.laneSub}>{lane.sub}</text>}
+                {(() => {
+                  const icon = deviceIcon(lane);
+                  return icon ? <DeviceGlyph icon={icon} x={x - 12} y={ICON_TOP} className={styles.laneIcon} /> : null;
+                })()}
+                <text x={x} y={48} textAnchor="middle" className={styles.laneName}>{lane.name}</text>
+                {lane.sub && <text x={x} y={65} textAnchor="middle" className={styles.laneSub}>{lane.sub}</text>}
               </g>
             );
           })}

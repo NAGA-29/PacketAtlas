@@ -2,7 +2,12 @@
 export type HopKind = 'control' | 'signal' | 'media' | 'data';
 export type PartNo = 1 | 2 | 3 | 4 | 5 | 6;
 
+/** 図に描く機器のアイコン */
+export type DeviceIcon = 'client' | 'mail' | 'server' | 'router' | 'switch' | 'resolver' | 'relay';
+
 export interface Lane {
+  /** 図のアイコン。省略すると名前から決める(src/lib/device.ts) */
+  icon?: DeviceIcon;
   /** 'client', 'server', 'stun' など。レッスン内で一意 */
   id: string;
   /** 表示名 */

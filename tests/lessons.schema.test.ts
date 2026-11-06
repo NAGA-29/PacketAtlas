@@ -249,3 +249,19 @@ describe('つながり図の配置', () => {
     expect(new Set(game.nodes.map((n) => n.y)).size).toBe(1);
   });
 });
+
+import { deviceIcon } from '@/lib/device';
+
+describe('機器のアイコン', () => {
+  it('全レッスンの全レーンにアイコンが決まる', () => {
+    for (const l of LESSONS) for (const lane of l.lanes) expect(deviceIcon(lane), `${l.id}: ${lane.name}`).toBeDefined();
+  });
+  it('名前から期待どおりに決まる', () => {
+    expect(deviceIcon({ name: 'ルーター1' })).toBe('router');
+    expect(deviceIcon({ name: 'DHCPサーバー' })).toBe('server');
+    expect(deviceIcon({ name: 'リゾルバー' })).toBe('resolver');
+    expect(deviceIcon({ name: 'メールソフト' })).toBe('mail');
+    expect(deviceIcon({ name: 'STUN / TURN' })).toBe('relay');
+    expect(deviceIcon({ name: 'Peer A' })).toBe('client');
+  });
+});

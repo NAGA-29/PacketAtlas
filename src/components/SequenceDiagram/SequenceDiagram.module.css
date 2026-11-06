@@ -30,6 +30,7 @@
 .scroll svg text { font-family: var(--font-sans); }
 
 .lane { stroke: var(--rule); stroke-width: 1.5; }
+.laneIcon { color: var(--blue); }
 .laneName { fill: var(--ink); font-size: 14px; font-weight: 700; }
 .laneSub { fill: var(--muted); font-size: 11px; }
 

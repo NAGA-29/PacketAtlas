@@ -6,11 +6,23 @@
 }
 .wrap svg { display: block; width: 100%; height: auto; margin: 0 auto; min-width: 520px; }
 .wrap svg text { font-family: var(--font-sans); }
-.node { fill: var(--panel); stroke: var(--rule); stroke-width: 1.5; }
-.nodeOn { fill: var(--panel); stroke: var(--ink); stroke-width: 2; }
+
+/* 機器の箱:控えめな影で紙の上に置いたように見せる */
+.node { fill: var(--panel); stroke: var(--rule); stroke-width: 1.5; filter: drop-shadow(0 1px 0 var(--rule)); transition: stroke 0.2s; }
+.on .node { stroke: var(--ink); stroke-width: 2; }
+.iconBg { fill: var(--grid); stroke: none; }
+.on .iconBg { fill: var(--f0); }
+.icon { color: var(--muted); }
+.on .icon { color: var(--blue); }
 .name { fill: var(--ink); font-size: 14px; font-weight: 700; }
 .sub { fill: var(--muted); font-size: 11px; }
+
 .edge { cursor: pointer; }
 .hit { stroke: transparent; stroke-width: 14; }
 .edgeLabel { font-size: 12px; font-weight: 500; paint-order: stroke; stroke: var(--panel); stroke-width: 4px; stroke-linejoin: round; }
+.dot { pointer-events: none; }
 .hint { margin: 0; padding: 4px 14px 8px; font-size: 12px; color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  .node { transition: none; }
+}
