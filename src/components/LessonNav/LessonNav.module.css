@@ -1,0 +1,5 @@
+.nav { display: flex; justify-content: space-between; gap: 16px; margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--rule); }
+.nav a { display: flex; flex-direction: column; color: var(--ink); text-decoration: none; font-weight: 500; padding: 8px 14px; border: 1px solid var(--rule); border-radius: 8px; background: var(--panel); }
+.nav a:hover { border-color: var(--ink); }
+.nav small { color: var(--muted); font-weight: 400; font-size: 12px; }
+.next { text-align: right; margin-left: auto; }

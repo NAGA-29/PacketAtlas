@@ -1,0 +1,40 @@
+.eyebrow { margin: 0; font-size: 13px; color: var(--muted); font-weight: 500; }
+.title { font-size: clamp(26px, 3.4vw, 38px); line-height: 1.15; margin: 2px 0 8px; font-weight: 700; letter-spacing: -0.01em; }
+.lead { max-width: 72ch; margin: 0 0 18px; color: var(--muted); }
+.lead b { color: var(--ink); font-weight: 500; }
+
+.sources { margin-top: 28px; font-size: 14px; }
+.sources h2 { font-size: 15px; margin: 0 0 6px; }
+.sources ul { margin: 0; padding-left: 1.2em; columns: 2 18em; }
+.verified { color: var(--muted); font-size: 12.5px; margin: 8px 0 0; }
+
+/* トップ */
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 24px; align-items: center; margin-bottom: 32px; }
+.hero h1 { font-size: clamp(28px, 4vw, 44px); line-height: 1.15; margin: 0 0 12px; letter-spacing: -0.01em; }
+.hero p { color: var(--muted); max-width: 52ch; margin: 0 0 10px; }
+.parts { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 16px; }
+.part { background: var(--panel); border: 1px solid var(--rule); border-radius: var(--radius); padding: 16px 18px; }
+.part h2 { font-size: 17px; margin: 0; }
+.part h2 small { display: block; font-size: 12px; color: var(--muted); font-weight: 500; }
+.part > p { margin: 2px 0 10px; color: var(--muted); font-size: 13.5px; }
+.part ol { list-style: none; margin: 0; padding: 0; }
+.part li { border-top: 1px solid var(--rule); padding: 7px 0; }
+.part li a { font-weight: 500; color: var(--ink); }
+.part li :global(.tag) { display: block; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+.planned { color: var(--muted); }
+.badge { font-size: 11px; border: 1px solid var(--rule); border-radius: 999px; padding: 0 7px; margin-left: 6px; color: var(--muted); font-weight: 400; vertical-align: 1px; }
+.compareLink { display: inline-block; margin-top: 10px; font-size: 13.5px; }
+
+/* 比較・資料 */
+.tableWrap { overflow-x: auto; background: var(--panel); border: 1px solid var(--rule); border-radius: var(--radius); }
+.compare { border-collapse: collapse; width: 100%; min-width: 720px; font-size: 14px; }
+.compare th, .compare td { padding: 10px 14px; border-top: 1px solid var(--rule); vertical-align: top; text-align: left; }
+.compare thead th { border-top: 0; font-size: 15px; }
+.compare tbody th { color: var(--muted); font-weight: 500; white-space: nowrap; width: 8em; }
+.notes { color: var(--muted); font-size: 13px; padding-left: 1.2em; }
+.prose { max-width: 72ch; }
+.prose h2 { font-size: 18px; margin: 28px 0 8px; }
+
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; }
+}

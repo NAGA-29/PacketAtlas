@@ -1,0 +1,67 @@
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
+  padding-bottom: 14px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--rule);
+}
+.logo { font-weight: 700; font-size: 17px; color: var(--ink); text-decoration: none; letter-spacing: 0.01em; }
+.logo::before { content: ''; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--blue); margin-right: 8px; vertical-align: 1px; }
+
+.parts { position: relative; font-size: 14px; }
+.parts summary {
+  list-style: none;
+  cursor: pointer;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-weight: 500;
+}
+.parts summary::-webkit-details-marker { display: none; }
+.parts summary:hover { border-color: var(--ink); }
+.parts ul {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 4px);
+  left: 0;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  min-width: 14em;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+.parts li a { display: block; padding: 4px 10px; border-radius: 4px; color: var(--ink); text-decoration: none; }
+.parts li a:hover { background: var(--grid); }
+.parts li a[aria-current='true'] { font-weight: 700; }
+
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+.tabs a {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  border: 1px solid var(--rule);
+  padding: 4px 14px;
+  border-radius: 999px;
+  text-decoration: none;
+}
+.tabs a[aria-current='page'] { color: var(--panel); background: var(--ink); border-color: var(--ink); }
+.tabs a:hover:not([aria-current='page']) { color: var(--ink); border-color: var(--ink); }
+
+.tools { margin-left: auto; display: flex; align-items: center; gap: 12px; font-size: 13px; }
+.about { color: var(--muted); }
+.theme {
+  font: inherit;
+  font-size: 13px;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 3px 10px;
+  cursor: pointer;
+}
+.theme:hover { border-color: var(--ink); }
