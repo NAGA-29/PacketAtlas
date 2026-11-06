@@ -8,6 +8,14 @@ const http3: Lesson = {
   tagline: 'UDPの上でTCPの弱点を解く',
   lead:
     '**TCP と TLS をやめ、UDP の上の QUIC で HTTP を運ぶ新しい版。**QUIC は接続確立と暗号化を1往復でまとめ、ストリームを独立させて「1つ落ちると全部止まる」問題を解きます。HTTP の意味は HTTP/2 と同じで、ヘッダー圧縮は QPACK に変わりました。',
+  overview: {
+    layer: 'アプリケーション層',
+    transport: 'QUIC(UDP の上、TLS 1.3 を内蔵)',
+    ports: '443(UDP)',
+    format: 'バイナリのフレーム(QUIC のストリームの上)',
+    key: { label: '主なフレーム', value: 'HEADERS、DATA、SETTINGS' },
+    specs: ['RFC 9114', 'RFC 9000', 'RFC 9204'],
+  },
   lanes: [
     { id: 'browser', name: 'ブラウザ', sub: 'UDP 50003' },
     { id: 'server', name: 'サーバー', sub: 'example.com:443(UDP)' },

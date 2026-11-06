@@ -82,3 +82,24 @@ test('OGP 画像がメタデータに入っている', async ({ page }) => {
   await page.goto('/ja/websocket/');
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\.png$/);
 });
+
+test('プロトコルの概要カードが出る', async ({ page }) => {
+  await page.goto('/ja/http11/');
+  const card = page.getByRole('region', { name: 'プロトコルの概要' });
+  await expect(card).toBeVisible();
+  await expect(card.getByText('既定のポート')).toBeVisible();
+  await expect(card.getByRole('link', { name: 'RFC 9110' })).toHaveAttribute('href', /rfc9110/);
+});
+
+test('つながり図に切り替えられ、線のクリックで手順が移り、選択が保存される', async ({ page }) => {
+  await page.goto('/ja/dns/');
+  await page.getByRole('button', { name: 'つながり' }).click();
+  await expect(page.getByRole('img', { name: 'DNSのつながり図' })).toBeVisible();
+  await expect(page.getByRole('img', { name: 'DNSのシーケンス図' })).toBeHidden();
+  await page.keyboard.press('ArrowRight');
+  await expect(page.getByText('手順 2 / 7')).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole('img', { name: 'DNSのつながり図' })).toBeVisible();
+  await page.getByRole('button', { name: 'シーケンス' }).click();
+  await expect(page.getByRole('img', { name: 'DNSのシーケンス図' })).toBeVisible();
+});

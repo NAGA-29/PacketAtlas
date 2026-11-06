@@ -32,6 +32,14 @@ const ip: Lesson = {
   tagline: 'TTLを減らしながらルーターを渡っていく',
   lead:
     '**ネットワークをまたいで、最終的な宛先までパケットを運ぶプロトコル。**ルーターは宛先アドレスを見て次のルーターへ渡すことを繰り返します。届く保証はしません。IPv4 の住所は32bitで足りなくなり、128bitの IPv6 へ移りつつあります。',
+  overview: {
+    layer: 'インターネット層(第3層)',
+    transport: '—(Ethernet などのリンク層の上)',
+    ports: 'なし(IPアドレスで宛先を指定)',
+    format: 'バイナリ(IPv4 は20〜60バイト、IPv6 は40バイト固定)',
+    key: { label: '主なプロトコル番号', value: '1 ICMP、6 TCP、17 UDP、58 ICMPv6' },
+    specs: ['RFC 791', 'RFC 8200'],
+  },
   lanes: [
     { id: 'pc', name: 'PC', sub: '192.0.2.10' },
     { id: 'r1', name: 'ルーター1', sub: '192.0.2.1' },

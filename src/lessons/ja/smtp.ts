@@ -8,6 +8,14 @@ const smtp: Lesson = {
   tagline: 'メールをサーバーからサーバーへ渡す',
   lead:
     '**メールを送る側から受け取る側のサーバーへ、テキストのコマンドで受け渡すプロトコル。**クライアントがコマンドを1行送り、サーバーが3桁の数字で答える、という往復を繰り返します。1982年からほとんど形を変えずに使われていて、暗号化や認証は後から拡張で足されました。',
+  overview: {
+    layer: 'アプリケーション層',
+    transport: 'TCP(+ TLS)',
+    ports: '25(サーバー間)、587(送信)、465(最初から TLS)',
+    format: 'テキスト(1行のコマンド + 3桁の応答)',
+    key: { label: '主なコマンド', value: 'EHLO、STARTTLS、MAIL FROM、RCPT TO、DATA、QUIT' },
+    specs: ['RFC 5321', 'RFC 5322'],
+  },
   lanes: [
     { id: 'mua', name: 'メールソフト', sub: 'alice@example.net' },
     { id: 'msa', name: '送信サーバー', sub: 'mail.example.net' },

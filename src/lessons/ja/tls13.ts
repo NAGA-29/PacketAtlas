@@ -8,6 +8,14 @@ const tls13: Lesson = {
   tagline: '1往復で鍵を共有し、相手を確かめる',
   lead:
     '**TCPの上に暗号化された通り道を作るプロトコル。**最初の1往復で鍵の材料を交換し、そこから先は証明書のやり取りも含めて全部暗号化されます。TLS 1.2 より1往復少なく、古い暗号方式は仕様から外されました。',
+  overview: {
+    layer: 'トランスポート層とアプリケーション層の間',
+    transport: 'TCP',
+    ports: 'アプリによる(HTTPS は 443)',
+    format: 'バイナリ(レコード + ハンドシェイクメッセージ)',
+    key: { label: '主なメッセージ', value: 'ClientHello、ServerHello、Certificate、CertificateVerify、Finished' },
+    specs: ['RFC 8446'],
+  },
   lanes: [
     { id: 'client', name: 'クライアント', sub: 'ブラウザ' },
     { id: 'server', name: 'サーバー', sub: 'example.com:443' },

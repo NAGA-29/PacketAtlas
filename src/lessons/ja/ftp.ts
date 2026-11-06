@@ -8,6 +8,14 @@ const ftp: Lesson = {
   tagline: '制御とデータの2本の接続',
   lead:
     '**ファイルを送り受けするための、インターネットでもっとも古いプロトコルの1つ。**コマンドを送る「制御接続」と、ファイルの中身を流す「データ接続」を別々に張るのが特徴です。もともと暗号化がなく、パスワードもそのまま流れるので、今は SFTP や HTTPS に置き換わりつつあります。',
+  overview: {
+    layer: 'アプリケーション層',
+    transport: 'TCP',
+    ports: '21(制御)+ データ用にもう1本',
+    format: 'テキスト(1行のコマンド + 3桁の応答)',
+    key: { label: '主なコマンド', value: 'USER、PASS、PASV、PORT、RETR、STOR' },
+    specs: ['RFC 959'],
+  },
   lanes: [
     { id: 'client', name: 'クライアント', sub: '192.0.2.10' },
     { id: 'server', name: 'FTP サーバー', sub: '203.0.113.21' },

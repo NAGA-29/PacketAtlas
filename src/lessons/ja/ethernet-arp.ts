@@ -8,6 +8,14 @@ const ethernetArp: Lesson = {
   tagline: 'IPアドレスからMACアドレスを引き、隣へ届ける',
   lead:
     '**同じネットワークの中で、隣の機器まで1歩運ぶのが Ethernet の仕事です。**宛先はIPアドレスではなく、機器ごとのMACアドレスで指定します。IPアドレスしか知らないときは、ARP で「このIPの持ち主は誰?」と全員に聞きます。',
+  overview: {
+    layer: 'リンク層(第2層)',
+    transport: '—(物理的な回線の上)',
+    ports: 'なし(MACアドレスで宛先を指定)',
+    format: 'バイナリ(ヘッダー14バイト + FCS4バイト、ARP は28バイト)',
+    key: { label: '主な EtherType', value: '0x0800 IPv4、0x0806 ARP、0x86DD IPv6' },
+    specs: ['RFC 826', 'IEEE 802.3'],
+  },
   lanes: [
     { id: 'pc', name: 'PC', sub: '192.0.2.10 / 00:00:5E:00:53:0A' },
     { id: 'switch', name: 'スイッチ', sub: 'L2' },

@@ -8,6 +8,14 @@ const icmp: Lesson = {
   tagline: 'ping と traceroute の正体',
   lead:
     '**IPの調子を知らせ合うための、小さな連絡用プロトコル。**「届かなかった」「TTLが尽きた」といった知らせをルーターや宛先が返します。ping と traceroute は、この仕組みを確かめに使う道具です。',
+  overview: {
+    layer: 'インターネット層(IPの上)',
+    transport: 'IP(プロトコル番号 1、ICMPv6 は 58)',
+    ports: 'なし',
+    format: 'バイナリ(タイプ・コード・チェックサム + 本体)',
+    key: { label: '主なタイプ', value: '0 / 8 エコー、3 到達不能、11 時間超過、ICMPv6 の 128 / 129' },
+    specs: ['RFC 792', 'RFC 4443'],
+  },
   lanes: [
     { id: 'pc', name: 'PC', sub: '192.0.2.10' },
     { id: 'r1', name: 'ルーター1', sub: '192.0.2.1' },

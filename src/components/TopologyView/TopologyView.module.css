@@ -1,0 +1,16 @@
+.wrap {
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 16px 16px;
+  overflow-x: auto;
+  padding: 8px 0 0;
+}
+.wrap svg { display: block; width: 100%; height: auto; margin: 0 auto; min-width: 520px; }
+.wrap svg text { font-family: var(--font-sans); }
+.node { fill: var(--panel); stroke: var(--rule); stroke-width: 1.5; }
+.nodeOn { fill: var(--panel); stroke: var(--ink); stroke-width: 2; }
+.name { fill: var(--ink); font-size: 14px; font-weight: 700; }
+.sub { fill: var(--muted); font-size: 11px; }
+.edge { cursor: pointer; }
+.hit { stroke: transparent; stroke-width: 14; }
+.edgeLabel { font-size: 12px; font-weight: 500; paint-order: stroke; stroke: var(--panel); stroke-width: 4px; stroke-linejoin: round; }
+.hint { margin: 0; padding: 4px 14px 8px; font-size: 12px; color: var(--muted); }

@@ -8,6 +8,14 @@ const ssh: Lesson = {
   tagline: '鍵を交換し、暗号化された端末を開く',
   lead:
     '**離れたコンピューターに安全にログインし、コマンドを打つためのプロトコル。**TLS と同じように鍵を交換してから暗号化しますが、相手の確認には証明書ではなく、前回覚えたホスト鍵を使うのが一般的です。1本の接続の中に、端末やファイル転送などの「チャネル」を何本も開けます。',
+  overview: {
+    layer: 'アプリケーション層',
+    transport: 'TCP',
+    ports: '22',
+    format: 'バージョン行の後はバイナリのパケット',
+    key: { label: '主なメッセージ', value: 'KEXINIT、NEWKEYS、USERAUTH_REQUEST、CHANNEL_OPEN' },
+    specs: ['RFC 4253', 'RFC 4254'],
+  },
   lanes: [
     { id: 'client', name: 'クライアント', sub: 'ssh bob@ssh.example.com' },
     { id: 'server', name: 'サーバー', sub: 'ssh.example.com:22' },

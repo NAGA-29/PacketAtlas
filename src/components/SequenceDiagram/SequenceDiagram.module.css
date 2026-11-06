@@ -11,6 +11,21 @@
   background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
   background-size: 16px 16px;
 }
+.views { display: flex; gap: 4px; padding: 8px 10px; border-bottom: 1px solid var(--rule); }
+.views button {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 3px 12px;
+  cursor: pointer;
+}
+.views button:hover { color: var(--ink); border-color: var(--ink); }
+.views button[aria-pressed='true'] { color: var(--panel); background: var(--ink); border-color: var(--ink); }
+.scroll[hidden] { display: none; }
 .scroll svg { display: block; width: 100%; height: auto; }
 .scroll svg text { font-family: var(--font-sans); }
 

@@ -8,6 +8,14 @@ const imap: Lesson = {
   tagline: 'サーバー上のメールを操作する',
   lead:
     '**メールをサーバーに置いたまま、フォルダーや既読の印を操作するプロトコル。**スマホとPCで同じ受信箱を見ても状態がそろうのは、正本がサーバーにあるからです。コマンドには「タグ」を付け、答えのどれがどのコマンドへのものかを区別します。',
+  overview: {
+    layer: 'アプリケーション層',
+    transport: 'TCP(+ TLS)',
+    ports: '143、993(TLS)',
+    format: 'テキスト(タグ付きのコマンドと応答)',
+    key: { label: '主なコマンド', value: 'LOGIN、SELECT、FETCH、STORE、IDLE' },
+    specs: ['RFC 9051'],
+  },
   lanes: [
     { id: 'mua', name: 'メールソフト', sub: 'bob@example.com' },
     { id: 'server', name: 'IMAP サーバー', sub: 'imap.example.com:993' },

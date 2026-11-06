@@ -72,6 +72,22 @@ export interface Source {
   url: string;
 }
 
+/** プロトコルの概要カード */
+export interface Overview {
+  /** 層(例:'アプリケーション層') */
+  layer: string;
+  /** 何の上で動くか(例:'TCP(+ TLS)') */
+  transport: string;
+  /** 既定のポート */
+  ports: string;
+  /** データの形式 */
+  format: string;
+  /** そのプロトコルらしい項目(主なメソッド、主なレコードなど) */
+  key: { label: string; value: string };
+  /** 規定する文書。sources のラベルの先頭と一致させる(例:'RFC 9110') */
+  specs: string[];
+}
+
 export interface Lesson {
   /** 'websocket' */
   id: string;
@@ -82,6 +98,7 @@ export interface Lesson {
   tagline: string;
   /** レッスン冒頭の2〜3文(Markdown) */
   lead: string;
+  overview: Overview;
   lanes: Lane[];
   steps: Step[];
   /** RFCなど一次資料 */

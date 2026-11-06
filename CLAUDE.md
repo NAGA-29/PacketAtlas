@@ -16,7 +16,8 @@
 - `src/lessons/types.ts` データモデル。`src/lessons/ja/*.ts` が1レッスン1ファイル。`src/lessons/index.ts` に登録(未執筆は `PLANNED`)
 - `src/components/` SequenceDiagram / StepPanel / PacketInspector / LessonNav / LessonPlayer / SiteHeader
 - `src/lib/codecs/` 検証用エンコーダー(テストからのみ使う。node:crypto 可)
-- `src/lib/diagram.ts` 図の座標計算(純粋関数)
+- `src/lib/diagram.ts` シーケンス図の座標計算、`src/lib/topology.ts` つながり図の配置(どちらも純粋関数)
+- 各レッスンの `overview` が「プロトコルの概要」カード。`specs` は `sources` のラベルの先頭と一致させる(テストで確認)
 - `tests/lessons.schema.test.ts` 全レッスンの構造チェック、`tests/bytes/*` バイト列の再計算
 
 ## 守るルール
@@ -26,6 +27,7 @@
 - hex は大文字2桁の空白区切り。Field は hex と text のどちらか一方。bits の合計 = バイト数×8
 - 例のアドレスは 192.0.2.0/24・198.51.100.0/24・203.0.113.0/24・2001:db8::/32、ドメインは example.com / example.net(NATの内側だけプライベート可)
 - 架空フォーマットは `fictional: true`、暗号化部分を復号後で見せるときは `view: 'decrypted'`
+- つながり図は自前の平面的な箱と線で描く(参考サイトの暗い画面・ノートPCやルーターの絵は使わない)
 - 動きはパケットの移動だけ。reduced-motion で止める。色だけで意味を伝えない。WCAG AA
 - 各フェーズの区切りは `pnpm test` と `pnpm build` が通ること
 

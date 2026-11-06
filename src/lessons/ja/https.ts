@@ -19,6 +19,14 @@ const https: Lesson = {
   tagline: 'DNS→TCP→TLS→HTTP をひと続きで見る',
   lead:
     '**アドレスバーに `https://example.com/` と打ってから最初の1バイトが届くまでを、ひと続きで追います。**これまでの章で見た DNS・TCP・TLS・HTTP が順に使われ、そのたびに往復(RTT)が積み上がります。速いサイトを作るとは、この往復を減らすことです。',
+  overview: {
+    layer: 'アプリケーション層(DNS・TCP・TLS・HTTP の組み合わせ)',
+    transport: 'TCP + TLS',
+    ports: '443',
+    format: '外からは TLS のレコードだけが見える',
+    key: { label: '使うプロトコル', value: 'DNS、TCP、TLS 1.3、HTTP/1.1' },
+    specs: ['RFC 9110', 'RFC 8446'],
+  },
   lanes: [
     { id: 'browser', name: 'ブラウザ', sub: '192.0.2.10' },
     { id: 'resolver', name: 'リゾルバー', sub: '198.51.100.53' },

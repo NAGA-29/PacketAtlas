@@ -10,6 +10,14 @@ const http11: Lesson = {
   tagline: 'テキストで頼み、テキストで返す',
   lead:
     '**人が読めるテキストで「これをください」と頼み、テキストのヘッダーを付けて返すプロトコル。**1本のTCP接続の上で、リクエストとレスポンスを1組ずつ順番にやり取りします。今もWebの基本で、HTTP/2 と HTTP/3 も意味は同じまま形だけを変えています。',
+  overview: {
+    layer: 'アプリケーション層',
+    transport: 'TCP(+ TLS)',
+    ports: '80(HTTPS は 443)',
+    format: 'テキスト(ヘッダー + 任意の本文)',
+    key: { label: '主なメソッド', value: 'GET、POST、PUT、DELETE、HEAD' },
+    specs: ['RFC 9110', 'RFC 9112'],
+  },
   lanes: [
     { id: 'browser', name: 'ブラウザ', sub: 'TCP接続済み' },
     { id: 'server', name: 'サーバー', sub: 'example.com:80' },

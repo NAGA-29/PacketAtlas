@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { LESSONS, getLesson, getPart, lessonNeighbors } from '@/lessons';
 import { LessonPlayer } from '@/components/LessonPlayer/LessonPlayer';
 import { LessonNav } from '@/components/LessonNav/LessonNav';
+import { Overview } from '@/components/Overview/Overview';
 import { SiteHeader } from '@/components/SiteHeader/SiteHeader';
 import { InlineMarkdown, plain } from '@/lib/markdown';
 import { LOCALES, dict, isLocale } from '@/lib/i18n';
@@ -38,9 +39,12 @@ export default async function LessonPage({ params }: { params: Params }) {
           {t.part(part.no)} {part.title}
         </p>
         <h1 className={styles.title}>{lesson.title}</h1>
-        <p className={styles.lead}>
-          <InlineMarkdown text={lesson.lead} />
-        </p>
+        <div className={styles.intro}>
+          <p className={styles.lead}>
+            <InlineMarkdown text={lesson.lead} />
+          </p>
+          <Overview lesson={lesson} locale={locale} />
+        </div>
         <LessonPlayer lesson={lesson} locale={locale} />
         <section className={styles.sources} aria-labelledby="sources">
           <h2 id="sources">{t.sources}</h2>

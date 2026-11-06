@@ -8,6 +8,14 @@ const pop3: Lesson = {
   tagline: 'メールを受け取って消す',
   lead:
     '**サーバーに届いたメールを手元にダウンロードするための、とても小さなプロトコル。**コマンドは数個で、答えは `+OK` か `-ERR` のどちらかで始まります。読んだら消すのが基本なので、複数の端末で同じメールボックスを見る使い方には向きません。',
+  overview: {
+    layer: 'アプリケーション層',
+    transport: 'TCP(+ TLS)',
+    ports: '110、995(TLS)',
+    format: 'テキスト(1行のコマンド + +OK / -ERR)',
+    key: { label: '主なコマンド', value: 'USER、PASS、STAT、LIST、RETR、DELE、QUIT' },
+    specs: ['RFC 1939'],
+  },
   lanes: [
     { id: 'mua', name: 'メールソフト', sub: 'bob@example.com' },
     { id: 'server', name: 'POP3 サーバー', sub: 'pop.example.com:995' },

@@ -8,6 +8,14 @@ const webrtc: Lesson = {
   tagline: 'ブラウザ同士が直接つながり、音声・映像・データを送り合う',
   lead:
     '**ブラウザ同士が直接つながり、音声・映像・データを送り合う仕組み。**直接つながるまでの段取り(シグナリング、NAT越え、鍵交換)がこのプロトコルの大半です。シグナリングの方式は規格で決まっておらず、多くはWebSocketを使います。',
+  overview: {
+    layer: 'アプリケーション層(複数のプロトコルの組み合わせ)',
+    transport: 'UDP(DTLS・SRTP・SCTP)',
+    ports: 'ICE で決まる(STUN / TURN は 3478)',
+    format: 'SDP はテキスト、メディアとデータはバイナリ',
+    key: { label: '使うプロトコル', value: 'SDP、ICE、STUN、TURN、DTLS、SRTP、SCTP' },
+    specs: ['RFC 8445', 'RFC 8489'],
+  },
   lanes: [
     { id: 'stun', name: 'STUN / TURN', sub: 'NAT越えの補助' },
     { id: 'a', name: 'Peer A', sub: '発信側' },

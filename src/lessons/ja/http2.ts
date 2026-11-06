@@ -25,6 +25,14 @@ const http2: Lesson = {
   tagline: '1本の接続にストリームを多重化する',
   lead:
     '**HTTP の意味はそのままに、やり取りをバイナリの「フレーム」に刻んで、1本の接続に何本も並べて流すプロトコル。**リクエストごとに番号(ストリームID)が付くので、レスポンスを順番どおりに待つ必要がなくなりました。ヘッダーは HPACK で圧縮します。',
+  overview: {
+    layer: 'アプリケーション層',
+    transport: 'TCP + TLS(ALPN で h2 を選ぶ)',
+    ports: '443',
+    format: 'バイナリのフレーム(ヘッダー9バイト)',
+    key: { label: '主なフレーム', value: 'HEADERS、DATA、SETTINGS、WINDOW_UPDATE、GOAWAY' },
+    specs: ['RFC 9113', 'RFC 7541'],
+  },
   lanes: [
     { id: 'browser', name: 'ブラウザ', sub: 'TLS接続中' },
     { id: 'server', name: 'サーバー', sub: 'example.com:443' },

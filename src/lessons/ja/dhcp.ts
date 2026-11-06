@@ -40,6 +40,14 @@ const dhcp: Lesson = {
   tagline: 'つないだ瞬間にアドレスをもらう4手順',
   lead:
     '**ネットワークにつないだ端末に、IPアドレスや DNS サーバーの場所を配る仕組み。**まだ自分のアドレスがない状態から始まるので、最初はブロードキャストで呼びかけます。Discover・Offer・Request・Ack の頭文字から **DORA** と呼ばれます。',
+  overview: {
+    layer: 'アプリケーション層',
+    transport: 'UDP',
+    ports: 'サーバー 67、クライアント 68',
+    format: 'バイナリ(固定部236バイト + オプション)',
+    key: { label: '主なメッセージ', value: 'DISCOVER、OFFER、REQUEST、ACK、NAK、RELEASE' },
+    specs: ['RFC 2131', 'RFC 2132'],
+  },
   lanes: [
     { id: 'client', name: 'クライアント', sub: '0.0.0.0 / 00:00:5E:00:53:0A' },
     { id: 'server', name: 'DHCPサーバー', sub: '192.0.2.1' },

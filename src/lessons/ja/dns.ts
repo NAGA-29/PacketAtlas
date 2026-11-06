@@ -37,6 +37,14 @@ const dns: Lesson = {
   tagline: 'ルートから順に名前をたどる',
   lead:
     '**名前をIPアドレスに変える、世界規模の分散データベース。**手元の端末はリゾルバーに1回聞くだけですが、リゾルバーはルート、TLD、権威サーバーへと順にたどって答えを探します。答えはしばらくキャッシュされ、2回目からはすぐ返ります。',
+  overview: {
+    layer: 'アプリケーション層',
+    transport: 'UDP(大きい応答は TCP)',
+    ports: '53',
+    format: 'バイナリ(ヘッダー12バイト + 質問・回答・権威・追加)',
+    key: { label: '主なレコード', value: 'A、AAAA、NS、CNAME、MX、SOA' },
+    specs: ['RFC 1034', 'RFC 1035'],
+  },
   lanes: [
     { id: 'stub', name: '端末', sub: '192.0.2.10' },
     { id: 'resolver', name: 'リゾルバー', sub: '198.51.100.53' },
