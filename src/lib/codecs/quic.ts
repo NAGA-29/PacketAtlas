@@ -45,3 +45,63 @@ export const streamKind = (id: number): { initiator: 'client' | 'server'; bidi: 
 
 /** WebTransport over HTTP/3 の双方向ストリームの印 */
 export const WT_BIDI_SIGNAL = 0x41;
+
+/** ACK フレーム(RFC 9000 19.3)。受信済みの番号の区間を返す */
+export const decodeAckFrame = (bytes: ArrayLike<number>): { largest: number; delay: number; received: [number, number][] } => {
+  const arr = Array.from(bytes);
+  let pos = 0;
+  const next = () => {
+    const r = decodeVarint(arr.slice(pos));
+    pos += r.length;
+    return r.value;
+  };
+  const type = next();
+  if (type !== 0x02 && type !== 0x03) throw new Error('not an ACK frame');
+  const largest = next();
+  const delay = next();
+  const rangeCount = next();
+  const first = next();
+  const received: [number, number][] = [[largest - first, largest]];
+  let smallest = largest - first;
+  for (let i = 0; i < rangeCount; i++) {
+    const gap = next();
+    const len = next();
+    const hi = smallest - gap - 2;
+    received.push([hi - len, hi]);
+    smallest = hi - len;
+  }
+  return { largest, delay, received };
+};
+
+/** HTTP/3(RFC 9114)のフレーム種別とストリーム種別 */
+export const H3 = { DATA: 0x00, HEADERS: 0x01, SETTINGS: 0x04, GOAWAY: 0x07 } as const;
+export const H3_STREAM = { CONTROL: 0x00, PUSH: 0x01, QPACK_ENCODER: 0x02, QPACK_DECODER: 0x03 } as const;
+export const H3_SETTING = { QPACK_MAX_TABLE_CAPACITY: 0x01, MAX_FIELD_SECTION_SIZE: 0x06, QPACK_BLOCKED_STREAMS: 0x07 } as const;
+
+export const h3Frame = (type: number, payload: number[]): number[] => [...encodeVarint(type), ...encodeVarint(payload.length), ...payload];
+
+/** QPACK(RFC 9204)の静的テーブルのうち使う部分 */
+export const QPACK_STATIC: Record<number, [string, string]> = {
+  0: [':authority', ''],
+  1: [':path', '/'],
+  17: [':method', 'GET'],
+  23: [':scheme', 'https'],
+  25: [':status', '200'],
+};
+
+export const qpack = {
+  /** 動的テーブルを使わないときの接頭辞(Required Insert Count = 0, Base = 0) */
+  prefix: [0x00, 0x00],
+  /** 11xxxxxx:静的テーブルのインデックス(6 ビット接頭辞) */
+  indexedStatic: (i: number): number[] => {
+    if (i >= 63) throw new Error('index too large for this helper');
+    return [0xc0 | i];
+  },
+  /** 0101xxxx:静的テーブルの名前 + リテラル値(N=0, T=1, 4 ビット接頭辞、H=0) */
+  literalWithStaticName: (nameIndex: number, value: string): number[] => {
+    if (nameIndex >= 15) throw new Error('index too large for this helper');
+    const v = Array.from(value, (c) => c.charCodeAt(0));
+    if (v.length >= 127) throw new Error('value too long for this helper');
+    return [0x50 | nameIndex, v.length, ...v];
+  },
+};

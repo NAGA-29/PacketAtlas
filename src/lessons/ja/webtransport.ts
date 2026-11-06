@@ -8,6 +8,14 @@ const webtransport: Lesson = {
   tagline: 'HTTP/3の上で、データグラムと独立したストリームを使い分ける',
   lead:
     '**ブラウザからUDPに近い通信を使うための新しい選択肢。**HTTP/3(QUIC)の上で動き、信頼性のない「データグラム」と、互いに独立した「ストリーム」を1つの暗号化接続で使い分けられます。ゲーム章のUDPパケットをそのまま運べます。',
+  overview: {
+    layer: 'アプリケーション層',
+    transport: 'HTTP/3(QUIC)',
+    ports: '443(UDP)',
+    format: 'バイナリ(データグラムとストリーム)',
+    key: { label: '使う仕組み', value: '拡張 CONNECT、DATAGRAM、双方向・一方向のストリーム' },
+    specs: ['RFC 9220', 'RFC 9221', 'W3C WebTransport'],
+  },
   lanes: [
     { id: 'client', name: 'ブラウザ', sub: 'new WebTransport()' },
     { id: 'server', name: 'サーバー', sub: 'HTTP/3' },

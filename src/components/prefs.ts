@@ -41,3 +41,27 @@ export function useReducedMotion(): boolean {
   }, []);
   return reduced;
 }
+
+export type DiagramView = 'sequence' | 'topology';
+const VIEW_KEY = 'pa-view';
+
+/** 図の表示(シーケンス / つながり)。localStorage に保存 */
+export function useDiagramView(): [DiagramView, (v: DiagramView) => void] {
+  const [view, setViewState] = useState<DiagramView>('sequence');
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(VIEW_KEY) === 'topology') setViewState('topology');
+    } catch {
+      /* 読めなければ既定のまま */
+    }
+  }, []);
+  const setView = useCallback((v: DiagramView) => {
+    setViewState(v);
+    try {
+      localStorage.setItem(VIEW_KEY, v);
+    } catch {
+      /* 保存できなくても切り替えは効く */
+    }
+  }, []);
+  return [view, setView];
+}

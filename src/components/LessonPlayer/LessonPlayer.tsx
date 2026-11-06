@@ -106,6 +106,7 @@ export function LessonPlayer({ lesson, locale }: { lesson: Lesson; locale: Local
           speed={speed}
           reducedMotion={reducedMotion}
           onSelect={(i) => go(i)}
+          allowTopology
         />
       </div>
       <div className={styles.side}>

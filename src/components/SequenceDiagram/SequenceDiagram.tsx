@@ -1,8 +1,12 @@
 'use client';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { HopKind, Lesson } from '@/lessons/types';
-import { LANE_TOP, layoutDiagram, selfBoxWidth } from '@/lib/diagram';
+import { ICON_TOP, LANE_TOP, layoutDiagram, selfBoxWidth } from '@/lib/diagram';
+import { deviceIcon } from '@/lib/device';
+import { DeviceGlyph } from '../DeviceGlyph';
 import { dict, type Locale } from '@/lib/i18n';
+import { TopologyView } from '../TopologyView/TopologyView';
+import { useDiagramView } from '../prefs';
 import styles from './SequenceDiagram.module.css';
 
 export const KIND_COLOR: Record<HopKind, string> = {
@@ -23,12 +27,16 @@ interface Props {
   legend?: boolean;
   /** スクロール領域の最大高さ(CSSの値) */
   maxHeight?: string;
+  /** 「シーケンス / つながり」の切り替えを出すか */
+  allowTopology?: boolean;
 }
 
 const ease = (p: number) => (p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2);
 
-export function SequenceDiagram({ lesson, locale, current, speed, reducedMotion, onSelect, legend = true, maxHeight }: Props) {
+export function SequenceDiagram({ lesson, locale, current, speed, reducedMotion, onSelect, legend = true, maxHeight, allowTopology = false }: Props) {
   const t = dict(locale);
+  const [savedView, setView] = useDiagramView();
+  const view = allowTopology ? savedView : 'sequence';
   const layout = useMemo(() => layoutDiagram(lesson), [lesson]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -40,7 +48,7 @@ export function SequenceDiagram({ lesson, locale, current, speed, reducedMotion,
   useLayoutEffect(() => {
     const dot = dotRef.current;
     const hide = () => dot?.setAttribute('cx', '-20');
-    if (reducedMotion || !dot) {
+    if (reducedMotion || !dot || view !== 'sequence') {
       setRevealed(stepRows.length);
       hide();
       return;
@@ -86,7 +94,7 @@ export function SequenceDiagram({ lesson, locale, current, speed, reducedMotion,
       if (timer) clearTimeout(timer);
       hide();
     };
-  }, [stepRows, speed, reducedMotion]);
+  }, [stepRows, speed, reducedMotion, view]);
 
   // 現在の手順が見える位置までスクロール
   useEffect(() => {
@@ -96,13 +104,23 @@ export function SequenceDiagram({ lesson, locale, current, speed, reducedMotion,
     if (!sc || !svg || !box) return;
     const scale = svg.getBoundingClientRect().width / layout.width;
     sc.scrollTo({ top: Math.max(0, box.y0 * scale - 90), behavior: reducedMotion ? 'auto' : 'smooth' });
-  }, [current, layout, reducedMotion]);
+  }, [current, layout, reducedMotion, view]);
 
   const kinds = Object.keys(KIND_COLOR) as HopKind[];
 
   return (
     <section className={styles.diagram} aria-label={t.diagram}>
-      <div className={styles.scroll} ref={scrollRef} style={maxHeight ? { maxHeight } : undefined} tabIndex={0} role="region" aria-label={t.diagramOf(lesson.title)}>
+      {allowTopology && (
+        <div className={styles.views} role="group" aria-label={t.view.label}>
+          {(['sequence', 'topology'] as const).map((v) => (
+            <button key={v} type="button" aria-pressed={view === v} onClick={() => setView(v)}>
+              {t.view[v]}
+            </button>
+          ))}
+        </div>
+      )}
+      {view === 'topology' && <TopologyView lesson={lesson} locale={locale} current={current} speed={speed} reducedMotion={reducedMotion} onSelect={onSelect} />}
+      <div hidden={view !== 'sequence'} className={styles.scroll} ref={scrollRef} style={maxHeight ? { maxHeight } : undefined} tabIndex={0} role="region" aria-label={t.diagramOf(lesson.title)}>
         <svg
           ref={svgRef}
           viewBox={`0 0 ${layout.width} ${layout.height}`}
@@ -122,8 +140,12 @@ export function SequenceDiagram({ lesson, locale, current, speed, reducedMotion,
             return (
               <g key={lane.id}>
                 <line x1={x} y1={LANE_TOP} x2={x} y2={layout.height - 6} className={styles.lane} />
-                <text x={x} y={24} textAnchor="middle" className={styles.laneName}>{lane.name}</text>
-                {lane.sub && <text x={x} y={42} textAnchor="middle" className={styles.laneSub}>{lane.sub}</text>}
+                {(() => {
+                  const icon = deviceIcon(lane);
+                  return icon ? <DeviceGlyph icon={icon} x={x - 12} y={ICON_TOP} className={styles.laneIcon} /> : null;
+                })()}
+                <text x={x} y={48} textAnchor="middle" className={styles.laneName}>{lane.name}</text>
+                {lane.sub && <text x={x} y={65} textAnchor="middle" className={styles.laneSub}>{lane.sub}</text>}
               </g>
             );
           })}

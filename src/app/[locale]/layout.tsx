@@ -20,9 +20,21 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params;
   if (!isLocale(locale)) return {};
   const t = dict(locale);
+  const title = `${t.siteName} — ${t.siteTagline}`;
   return {
-    title: { default: `${t.siteName} — ${t.siteTagline}`, template: `%s · ${t.siteName}` },
+    // OGP の画像などを絶対URLにするための基準。デプロイ時に SITE_URL を設定する
+    metadataBase: new URL(process.env.SITE_URL ?? 'http://localhost:3000'),
+    title: { default: title, template: `%s · ${t.siteName}` },
     description: t.siteTagline,
+    openGraph: {
+      type: 'website',
+      siteName: t.siteName,
+      title,
+      description: t.siteTagline,
+      locale: 'ja_JP',
+      images: [{ url: '/og.png', width: 1200, height: 630, alt: `${t.siteName}:シーケンス図とバイト列の分解` }],
+    },
+    twitter: { card: 'summary_large_image', images: ['/og.png'] },
   };
 }
 

@@ -27,6 +27,14 @@ const game: Lesson = {
   tagline: 'UDPの上に自前の信頼性を足し、最新の状態を最速で届ける',
   lead:
     '**対戦ゲームはUDPの上に自前のプロトコルを作るのが一般的です。**「全部届ける」より「最新の状態を最速で届ける」が大事なので、古い状態は捨て、必要なものだけ信頼性を足します。サーバー権威型で、60Hzのシミュレーションを想定しています。',
+  overview: {
+    layer: 'アプリケーション層(アプリが自作)',
+    transport: 'UDP',
+    ports: 'ゲームごとに決める',
+    format: 'バイナリ(このサイトの架空フォーマット)',
+    key: { label: '主なメッセージ(架空)', value: 'CONNECT、INPUT、SNAPSHOT、FIRE、RELIABLE' },
+    specs: ['RFC 768'],
+  },
   lanes: [
     { id: 'a', name: 'Client A', sub: '自分' },
     { id: 'server', name: 'サーバー', sub: '権威を持つ' },

@@ -1,0 +1,9 @@
+.card { background: var(--panel); border: 1px solid var(--rule); border-radius: var(--radius); padding: 12px 18px 6px; }
+.title { font-size: 14px; font-weight: 700; margin: 0 0 4px; }
+.list { margin: 0; font-size: 13.5px; }
+.row { display: grid; grid-template-columns: 9.5em minmax(0, 1fr); gap: 12px; padding: 6px 0; border-top: 1px solid var(--rule); }
+.row dt { font-weight: 500; color: var(--muted); }
+.row dd { margin: 0; line-height: 1.6; }
+@media (max-width: 480px) {
+  .row { grid-template-columns: 1fr; gap: 0; }
+}

@@ -40,6 +40,10 @@ const ja = {
   packetPanel: 'パケットの中身',
   theme: { system: '自動', light: 'ライト', dark: 'ダーク', label: 'テーマ' },
   skip: '本文へ移動',
+  overview: { title: 'プロトコルの概要', layer: '層', transport: 'トランスポート', ports: '既定のポート', format: 'データ形式', specs: '規定' },
+  view: { label: '図の表示', sequence: 'シーケンス', topology: 'つながり' },
+  topologyOf: (t: string) => `${t}のつながり図`,
+  topologyHint: '線は通信する組。今の手順で使う線を色と矢印で示す',
   top: 'トップ',
 };
 

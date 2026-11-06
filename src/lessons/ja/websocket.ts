@@ -8,6 +8,14 @@ const websocket: Lesson = {
   tagline: 'HTTPで始まり、1本のTCP接続を双方向の通り道に変える',
   lead:
     '**HTTPで始まり、1本のTCP接続を双方向の通り道に変えるプロトコル。**チャット、通知、ターン制ゲーム、シグナリングサーバーの定番です。TCPの上なので届く順番と到着は保証されますが、1つ落ちると後ろが全部待たされます。',
+  overview: {
+    layer: 'アプリケーション層',
+    transport: 'TCP(+ TLS)',
+    ports: '80(wss は 443)',
+    format: '最初は HTTP、Upgrade の後はバイナリのフレーム',
+    key: { label: '主な opcode', value: '0x1 テキスト、0x2 バイナリ、0x8 Close、0x9 Ping、0xA Pong' },
+    specs: ['RFC 6455'],
+  },
   lanes: [
     { id: 'client', name: 'ブラウザ', sub: 'new WebSocket()' },
     { id: 'server', name: 'サーバー', sub: 'ws://example.com/chat' },
