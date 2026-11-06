@@ -144,3 +144,29 @@ export const icmpMessage = (type: number, code: number, rest: number[], data: Ar
 
 /** 32bit のシーケンス番号の足し算(周回する) */
 export const seqAdd = (a: number, b: number): number => (a + b) >>> 0;
+
+/** IPv6 アドレス(:: 省略可)を 16 バイトに */
+export const ipv6Bytes = (addr: string): number[] => {
+  const [head, tail] = addr.includes('::') ? addr.split('::') : [addr, undefined];
+  const h = (head ?? '').split(':').filter(Boolean);
+  const t = tail === undefined ? [] : tail.split(':').filter(Boolean);
+  const fill = tail === undefined ? 0 : 8 - h.length - t.length;
+  const groups = [...h, ...new Array(fill).fill('0'), ...t];
+  if (groups.length !== 8) throw new Error(`bad ipv6 ${addr}`);
+  return groups.flatMap((g) => uintBytes(parseInt(g, 16), 2));
+};
+
+export const ipv6Header = (s: { src: string; dst: string; nextHeader: number; payloadLength: number; hopLimit?: number; trafficClass?: number; flowLabel?: number }): number[] => {
+  const first = ((6 << 28) | ((s.trafficClass ?? 0) << 20) | (s.flowLabel ?? 0)) >>> 0;
+  return [...uintBytes(first, 4), ...uintBytes(s.payloadLength, 2), s.nextHeader, s.hopLimit ?? 64, ...ipv6Bytes(s.src), ...ipv6Bytes(s.dst)];
+};
+
+/** ICMPv6(RFC 4443)は IPv6 の疑似ヘッダーを含めてチェックサムを取る */
+export const icmpv6Message = (src: string, dst: string, type: number, code: number, rest: number[], data: ArrayLike<number>): number[] => {
+  const m = [type, code, 0, 0, ...rest, ...Array.from(data)];
+  const pseudo = [...ipv6Bytes(src), ...ipv6Bytes(dst), ...uintBytes(m.length, 4), 0, 0, 0, 58];
+  const c = internetChecksum([...pseudo, ...m]);
+  m[2] = c >> 8;
+  m[3] = c & 0xff;
+  return m;
+};

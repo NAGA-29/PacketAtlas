@@ -129,6 +129,8 @@ describe('例のアドレスとドメイン', () => {
     (a === 198 && b === 51 && c === 100) ||
     (a === 203 && b === 0 && c === 113) ||
     a === 127 ||
+    a === 0 || // 0.0.0.0(未設定・デフォルト経路)
+    a === 255 || // 255.255.255.255(ブロードキャスト)やサブネットマスク
     a === 10 ||
     (a === 192 && b === 168);
   const texts = LESSONS.flatMap((l) => [
@@ -154,7 +156,7 @@ describe('例のアドレスとドメイン', () => {
   });
 });
 
-import { layoutDiagram, selfBoxWidth } from '@/lib/diagram';
+import { laneLabelWidth, layoutDiagram, selfBoxWidth } from '@/lib/diagram';
 
 describe('シーケンス図の座標', () => {
   for (const lesson of LESSONS) {
@@ -166,6 +168,13 @@ describe('シーケンス図の座標', () => {
         expect(r.x1 - half).toBeGreaterThanOrEqual(34);
         expect(r.x1 + half).toBeLessThanOrEqual(layout.width);
       }
+    });
+    it(`${lesson.id}: 端のレーンの見出しが図からはみ出さない`, () => {
+      const layout = layoutDiagram(lesson);
+      const first = lesson.lanes[0];
+      const last = lesson.lanes.at(-1);
+      expect((layout.laneX[first?.id ?? ''] ?? 0) - laneLabelWidth(first) / 2).toBeGreaterThanOrEqual(0);
+      expect((layout.laneX[last?.id ?? ''] ?? 0) + laneLabelWidth(last) / 2).toBeLessThanOrEqual(layout.width);
     });
   }
 });

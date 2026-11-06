@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-const PAGES = ['/ja/', '/ja/udp/', '/ja/tcp/', '/ja/dns/', '/ja/tls13/', '/ja/compare/transport/', '/ja/compare/naming-security/', '/ja/websocket/', '/ja/webrtc/', '/ja/game/', '/ja/webtransport/', '/ja/compare/realtime/', '/ja/about/'];
+const PAGES = ['/ja/', '/ja/ethernet-arp/', '/ja/ip/', '/ja/icmp/', '/ja/dhcp/', '/ja/http11/', '/ja/https/', '/ja/http2/', '/ja/http3/', '/ja/compare/link/', '/ja/compare/web/', '/ja/udp/', '/ja/tcp/', '/ja/dns/', '/ja/tls13/', '/ja/compare/transport/', '/ja/compare/naming-security/', '/ja/websocket/', '/ja/webrtc/', '/ja/game/', '/ja/webtransport/', '/ja/compare/realtime/', '/ja/about/'];
 
 for (const path of PAGES) {
   test(`${path}: axe で重大な違反がなく、横にはみ出さない`, async ({ page }) => {

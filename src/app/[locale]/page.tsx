@@ -6,8 +6,8 @@ import { TopDemo } from '@/components/TopDemo/TopDemo';
 import { dict, isLocale } from '@/lib/i18n';
 import styles from './page.module.css';
 
-// フェーズ4で HTTPS の通しレッスンに差し替える
-const DEMO_LESSON = 'websocket';
+// トップで動かす見本:HTTPS の通しレッスン
+const DEMO_LESSON = 'https';
 
 export default async function TopPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -27,11 +27,11 @@ export default async function TopPage({ params }: { params: Promise<{ locale: st
             <p>下の層から上の層へ、6部21レッスン。バイト列はRFCなどの一次資料から起こし、テストで再計算しています。</p>
             {demo && (
               <p>
-                <Link href={`/${locale}/${demo.id}/`}>{demo.title} のレッスンから始める →</Link>
+                <Link href={`/${locale}/${demo.id}/`}>{demo.title}:最初の1バイトが届くまで →</Link>
               </p>
             )}
           </div>
-          {demo && <TopDemo lesson={demo} locale={locale} />}
+          {demo && <TopDemo lesson={demo} locale={locale} steps={demo.steps.length - 1} />}
         </section>
 
         <div className={styles.parts}>

@@ -3,6 +3,16 @@ import websocket from './ja/websocket';
 import webrtc from './ja/webrtc';
 import game from './ja/game';
 import webtransport from './ja/webtransport';
+import ethernetArp from './ja/ethernet-arp';
+import ip from './ja/ip';
+import icmp from './ja/icmp';
+import dhcp from './ja/dhcp';
+import http11 from './ja/http11';
+import https from './ja/https';
+import http2 from './ja/http2';
+import http3 from './ja/http3';
+import compareLink from './ja/compare-link';
+import compareWeb from './ja/compare-web';
 import udp from './ja/udp';
 import tcp from './ja/tcp';
 import dns from './ja/dns';
@@ -21,7 +31,7 @@ export const PARTS: Part[] = [
 ];
 
 /** 書き上がったレッスン(日本語) */
-export const LESSONS: Lesson[] = [udp, tcp, dns, tls13, websocket, webrtc, game, webtransport];
+export const LESSONS: Lesson[] = [ethernetArp, ip, icmp, dhcp, udp, tcp, dns, tls13, http11, https, http2, http3, websocket, webrtc, game, webtransport];
 
 /** 収録予定で、まだ書かれていないレッスン */
 export const PLANNED: PlannedLesson[] = [
@@ -45,7 +55,7 @@ export const PLANNED: PlannedLesson[] = [
 ];
 
 /** 部ごとの比較ページ */
-export const COMPARES: CompareTable[] = [compareTransport, compareNamingSecurity, compareRealtime];
+export const COMPARES: CompareTable[] = [compareLink, compareTransport, compareNamingSecurity, compareWeb, compareRealtime];
 
 /** 比較ページがある部 */
 export const COMPARE_PARTS: PartNo[] = COMPARES.map((c) => c.part);
