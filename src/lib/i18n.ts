@@ -17,6 +17,7 @@ const ja = {
   legend: { control: '接続制御', signal: 'シグナリング', media: 'メディア・状態', data: 'データ' },
   legendHint: '図をクリックでその手順へ',
   lost: '(消失)',
+  lostCount: (n: number) => `(${n}つ消失)`,
   noPacket: 'パケットなし',
   noPacketBody: 'この手順は手元の処理だけで、ネットワークには何も流れません。',
   bytesShown: (n: number) => `${n} バイト表示`,

@@ -265,3 +265,78 @@ describe('機器のアイコン', () => {
     expect(deviceIcon({ name: 'Peer A' })).toBe('client');
   });
 });
+
+import { EDGE_LABEL_PX, offsetSegment, trackLabel, TRACK_GAP } from '@/lib/topology';
+import { textWidth } from '@/lib/diagram';
+
+describe('つながり図:1本の線を複数の種類のパケットが通る手順', () => {
+  const lesson = (id: string) => LESSONS.find((l) => l.id === id)!;
+  const stepIndex = (id: string, stepId: string) => lesson(id).steps.findIndex((s) => s.id === stepId);
+
+  it('全レッスン・全手順で、どのホップも自分の種類のトラックに載っている', () => {
+    for (const l of LESSONS) {
+      const order = l.lanes.map((x) => x.id);
+      l.steps.forEach((st, si) => {
+        const act = activeEdges(l, si);
+        for (const h of st.hops) {
+          if (h.from === h.to) continue;
+          const [a, b] = order.indexOf(h.from) <= order.indexOf(h.to) ? [h.from, h.to] : [h.to, h.from];
+          const tr = act.get(`${a}|${b}`)?.find((x) => x.kind === h.kind);
+          expect(tr, `${l.id}#${st.id}: ${h.label}`).toBeDefined();
+          expect(h.from === a ? tr!.forward : tr!.backward).toBe(true);
+          expect(tr!.labels.some((x) => x.text === h.label)).toBe(true);
+        }
+      });
+    }
+  });
+
+  it('WebRTC の TURN:A と STUN/TURN の線に、接続制御とメディアの2本が並ぶ', () => {
+    const tracks = activeEdges(lesson('webrtc'), stepIndex('webrtc', 'turn')).get('stun|a')!;
+    expect(tracks.map((t) => t.kind)).toEqual(['control', 'media']);
+    expect(tracks.map((t) => t.offset)).toEqual([-TRACK_GAP / 2, TRACK_GAP / 2]);
+    expect(tracks[0]).toMatchObject({ forward: true, backward: true });
+    expect(tracks[1]).toMatchObject({ forward: false, backward: true });
+  });
+
+  it('WebTransport のデータグラム:データとメディアが分かれ、メディアは一部だけ消える', () => {
+    const tracks = activeEdges(lesson('webtransport'), stepIndex('webtransport', 'datagram')).get('client|server')!;
+    expect(tracks.map((t) => t.kind)).toEqual(['data', 'media']);
+    expect(tracks[1]).toMatchObject({ lostAny: true, lostAll: false });
+    expect(tracks[0]).toMatchObject({ lostAny: false });
+    expect(trackLabel(tracks[1]!)).toBe('DATAGRAM: 状態 ×3(1つ消失)');
+  });
+
+  it('横一列の配置では、どの線のラベルも線の長さに収まる', () => {
+    for (const l of LESSONS) {
+      const t = layoutTopology(l);
+      if (new Set(t.nodes.map((n) => n.y)).size !== 1) continue;
+      l.steps.forEach((_, si) => {
+        for (const [k, tracks] of activeEdges(l, si)) {
+          const [a, b] = k.split('|');
+          const p = t.nodes.find((n) => n.id === a)!;
+          const q = t.nodes.find((n) => n.id === b)!;
+          const [x1, , x2] = clipToBoxes(p, q);
+          for (const tr of tracks) expect(textWidth(trackLabel(tr), EDGE_LABEL_PX), `${l.id} ${k}`).toBeLessThanOrEqual(Math.abs(x2 - x1));
+        }
+      });
+    }
+  });
+
+  it('ゲームのロス:同じ種類で一部だけ消えるときは lostAll にならない', () => {
+    const tracks = activeEdges(lesson('game'), stepIndex('game', 'loss')).get('a|server')!;
+    const media = tracks.find((t) => t.kind === 'media')!;
+    expect(media).toMatchObject({ lostAny: true, lostAll: false, offset: -TRACK_GAP / 2 });
+    expect(media.labels).toEqual([
+      { text: 'SNAPSHOT t=8007', total: 1, lost: 1 },
+      { text: 'SNAPSHOT t=8010', total: 1, lost: 0 },
+    ]);
+    expect(trackLabel(media)).toBe('SNAPSHOT t=8007(消失) / SNAPSHOT t=8010');
+  });
+
+  it('平行線はもとの線から同じ距離だけ離れる', () => {
+    const [x1, y1, x2, y2] = offsetSegment(0, 0, 100, 0, 7);
+    expect([x1, x2]).toEqual([0, 100]);
+    expect(Math.abs(y1)).toBe(7);
+    expect(y1).toBe(y2);
+  });
+});

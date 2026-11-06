@@ -19,6 +19,8 @@
 
 .edge { cursor: pointer; }
 .hit { stroke: transparent; stroke-width: 14; }
+.idle { stroke: var(--rule); stroke-width: 1.6; stroke-dasharray: 2 5; }
+.cross { stroke: var(--mag); stroke-width: 2; }
 .edgeLabel { font-size: 12px; font-weight: 500; paint-order: stroke; stroke: var(--panel); stroke-width: 4px; stroke-linejoin: round; }
 .dot { pointer-events: none; }
 .hint { margin: 0; padding: 4px 14px 8px; font-size: 12px; color: var(--muted); }
