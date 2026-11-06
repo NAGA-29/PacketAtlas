@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-const PAGES = ['/ja/', '/ja/ethernet-arp/', '/ja/ip/', '/ja/icmp/', '/ja/dhcp/', '/ja/http11/', '/ja/https/', '/ja/http2/', '/ja/http3/', '/ja/compare/link/', '/ja/compare/web/', '/ja/udp/', '/ja/tcp/', '/ja/dns/', '/ja/tls13/', '/ja/compare/transport/', '/ja/compare/naming-security/', '/ja/websocket/', '/ja/webrtc/', '/ja/game/', '/ja/webtransport/', '/ja/compare/realtime/', '/ja/about/'];
+const PAGES = ['/ja/', '/ja/ethernet-arp/', '/ja/ip/', '/ja/icmp/', '/ja/dhcp/', '/ja/http11/', '/ja/https/', '/ja/http2/', '/ja/http3/', '/ja/compare/link/', '/ja/compare/web/', '/ja/smtp/', '/ja/pop3/', '/ja/imap/', '/ja/ssh/', '/ja/ftp/', '/ja/compare/mail-remote/', '/ja/udp/', '/ja/tcp/', '/ja/dns/', '/ja/tls13/', '/ja/compare/transport/', '/ja/compare/naming-security/', '/ja/websocket/', '/ja/webrtc/', '/ja/game/', '/ja/webtransport/', '/ja/compare/realtime/', '/ja/about/'];
 
 for (const path of PAGES) {
   test(`${path}: axe で重大な違反がなく、横にはみ出さない`, async ({ page }) => {
@@ -70,4 +70,15 @@ test('Space で自動再生を切り替える', async ({ page }) => {
   await expect(page.getByRole('button', { name: '一時停止' })).toBeVisible();
   await page.keyboard.press(' ');
   await expect(page.getByRole('button', { name: '自動再生' })).toBeVisible();
+});
+
+test('全21レッスンが一覧にリンクされ、準備中が残っていない', async ({ page }) => {
+  await page.goto('/ja/');
+  await expect(page.getByText('準備中')).toHaveCount(0);
+  await expect(page.locator('main section[id^="part-"] li a')).toHaveCount(21);
+});
+
+test('OGP 画像がメタデータに入っている', async ({ page }) => {
+  await page.goto('/ja/websocket/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\.png$/);
 });

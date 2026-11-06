@@ -11,7 +11,13 @@ import http11 from './ja/http11';
 import https from './ja/https';
 import http2 from './ja/http2';
 import http3 from './ja/http3';
+import smtp from './ja/smtp';
+import pop3 from './ja/pop3';
+import imap from './ja/imap';
+import ssh from './ja/ssh';
+import ftp from './ja/ftp';
 import compareLink from './ja/compare-link';
+import compareMailRemote from './ja/compare-mail-remote';
 import compareWeb from './ja/compare-web';
 import udp from './ja/udp';
 import tcp from './ja/tcp';
@@ -31,7 +37,7 @@ export const PARTS: Part[] = [
 ];
 
 /** 書き上がったレッスン(日本語) */
-export const LESSONS: Lesson[] = [ethernetArp, ip, icmp, dhcp, udp, tcp, dns, tls13, http11, https, http2, http3, websocket, webrtc, game, webtransport];
+export const LESSONS: Lesson[] = [ethernetArp, ip, icmp, dhcp, udp, tcp, dns, tls13, http11, https, http2, http3, smtp, pop3, imap, ssh, ftp, websocket, webrtc, game, webtransport];
 
 /** 収録予定で、まだ書かれていないレッスン */
 export const PLANNED: PlannedLesson[] = [
@@ -55,7 +61,7 @@ export const PLANNED: PlannedLesson[] = [
 ];
 
 /** 部ごとの比較ページ */
-export const COMPARES: CompareTable[] = [compareLink, compareTransport, compareNamingSecurity, compareWeb, compareRealtime];
+export const COMPARES: CompareTable[] = [compareLink, compareTransport, compareNamingSecurity, compareWeb, compareMailRemote, compareRealtime];
 
 /** 比較ページがある部 */
 export const COMPARE_PARTS: PartNo[] = COMPARES.map((c) => c.part);

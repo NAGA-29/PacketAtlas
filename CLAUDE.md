@@ -35,6 +35,8 @@
 - Ethernet の FCS は CRC-32(「123456789」→ CBF43926 で検証)、FCS 込みの残余 2144DF1C で受信側の検査も確認
 - HPACK は RFC 7541 付録 C.3.1 / C.1 の例、QUIC の ACK はデコードして欠けを確認。文字列はハフマン符号なし(画面に注記)
 - HTTPS(通し)章は他の章のパケットを `borrow` で参照し、同じバイト列を二重に持たない
+- SMTP / POP3 / IMAP / FTP はテキストなので、CRLF、SIZE・STAT・リテラルのバイト数、AUTH PLAIN の Base64、PASV / PORT のポート計算をテストで確かめる
+- SSH は `codecs/ssh.ts` で KEXINIT などを組み立て、パケット長と詰め物の規則を確認。環境に ssh クライアントがないため、実物との突き合わせはしていない
 - TLS 1.3 の ClientHello は、`tests/fixtures/test-only-*.pem` で立てたローカルの Node TLS サーバーに実際に送り、TLS 1.3 の ServerHello が返ることを確かめる。乱数と公開鍵は(例)。RFC 8448 のトレースは環境から取得できなかったため使っていない
 
 ## 進捗
@@ -42,5 +44,5 @@
 - [x] フェーズ2 リアルタイム4章(WebSocket / WebRTC / ゲーム / WebTransport)、codecs とバイト列テスト、第6部の比較ページ
 - [x] フェーズ3 UDP, TCP, DNS, TLS 1.3、第2部・第3部の比較ページ
 - [x] フェーズ4 Ethernet/ARP, IP, ICMP, DHCP, HTTP系4本、第1部・第4部の比較ページ、トップの見本図を HTTPS 通しに差し替え
-- [ ] フェーズ5 メールとリモート5本、OGP画像
+- [x] フェーズ5 SMTP, POP3, IMAP, SSH, FTP、第5部の比較ページ、OGP画像(`pnpm og` で public/og.png を再生成)
 - [ ] フェーズ6 英語版
