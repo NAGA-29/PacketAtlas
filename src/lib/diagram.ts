@@ -31,7 +31,7 @@ export interface DiagramLayout {
   steps: StepBox[];
 }
 
-export const laneGap = (n: number): number => (n <= 2 ? 280 : n === 3 ? 200 : 160);
+export const laneGap = (n: number): number => (n <= 2 ? 280 : n === 3 ? 200 : n === 4 ? 160 : 136);
 
 export const layoutDiagram = (lesson: Pick<Lesson, 'lanes' | 'steps'>): DiagramLayout => {
   const n = lesson.lanes.length;

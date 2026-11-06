@@ -3,7 +3,13 @@ import websocket from './ja/websocket';
 import webrtc from './ja/webrtc';
 import game from './ja/game';
 import webtransport from './ja/webtransport';
+import udp from './ja/udp';
+import tcp from './ja/tcp';
+import dns from './ja/dns';
+import tls13 from './ja/tls13';
 import compareRealtime from './ja/compare-realtime';
+import compareTransport from './ja/compare-transport';
+import compareNamingSecurity from './ja/compare-naming-security';
 
 export const PARTS: Part[] = [
   { no: 1, slug: 'link', title: 'つながる', summary: '隣の機器に届け、住所をもらう' },
@@ -15,7 +21,7 @@ export const PARTS: Part[] = [
 ];
 
 /** 書き上がったレッスン(日本語) */
-export const LESSONS: Lesson[] = [websocket, webrtc, game, webtransport];
+export const LESSONS: Lesson[] = [udp, tcp, dns, tls13, websocket, webrtc, game, webtransport];
 
 /** 収録予定で、まだ書かれていないレッスン */
 export const PLANNED: PlannedLesson[] = [
@@ -39,7 +45,7 @@ export const PLANNED: PlannedLesson[] = [
 ];
 
 /** 部ごとの比較ページ */
-export const COMPARES: CompareTable[] = [compareRealtime];
+export const COMPARES: CompareTable[] = [compareTransport, compareNamingSecurity, compareRealtime];
 
 /** 比較ページがある部 */
 export const COMPARE_PARTS: PartNo[] = COMPARES.map((c) => c.part);
@@ -90,4 +96,10 @@ export const lessonNeighbors = (id: string, locale: string): { prev?: NavLink; n
     next = { href: `/${locale}/compare/${getPart(cur.part).slug}/`, label: `第${cur.part}部の比較` };
   else if (after) next = { href: `/${locale}/${after.id}/`, label: after.title };
   return { prev, next };
+};
+
+/** 比較ページの次:次の部の最初のレッスン(なければトップ) */
+export const afterCompare = (part: PartNo, locale: string): NavLink => {
+  const next = orderedLessons().find((l) => l.part > part);
+  return next ? { href: `/${locale}/${next.id}/`, label: next.title } : { href: `/${locale}/`, label: 'トップ' };
 };

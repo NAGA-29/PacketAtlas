@@ -29,10 +29,15 @@
 - 動きはパケットの移動だけ。reduced-motion で止める。色だけで意味を伝えない。WCAG AA
 - 各フェーズの区切りは `pnpm test` と `pnpm build` が通ること
 
+## バイト列の確かめ方(メモ)
+- IPv4 / UDP / TCP / ICMP のチェックサムは `codecs/inet.ts` で再計算(RFC 1071 の数値例でエンコーダー自体も検証)
+- DNS は `codecs/dns.ts` で組み立て、圧縮ポインターは `readName` でたどって確認
+- TLS 1.3 の ClientHello は、`tests/fixtures/test-only-*.pem` で立てたローカルの Node TLS サーバーに実際に送り、TLS 1.3 の ServerHello が返ることを確かめる。乱数と公開鍵は(例)。RFC 8448 のトレースは環境から取得できなかったため使っていない
+
 ## 進捗
 - [x] フェーズ1 土台(Next.js 静的書き出し、型、トークン、主要コンポーネント、レッスン画面)
 - [x] フェーズ2 リアルタイム4章(WebSocket / WebRTC / ゲーム / WebTransport)、codecs とバイト列テスト、第6部の比較ページ
-- [ ] フェーズ3 UDP, TCP, DNS, TLS 1.3
+- [x] フェーズ3 UDP, TCP, DNS, TLS 1.3、第2部・第3部の比較ページ
 - [ ] フェーズ4 Ethernet/ARP, IP, ICMP, DHCP, HTTP系4本(トップの見本図を HTTPS 通しに差し替え)
 - [ ] フェーズ5 メールとリモート5本、OGP画像
 - [ ] フェーズ6 英語版

@@ -6,9 +6,14 @@ const RESERVED_ROUTES = new Set(['compare', 'about']);
 
 describe('レッスン全体', () => {
   it('id が一意で、予約されたルート名と衝突しない', () => {
-    const ids = [...LESSONS.map((l) => l.id), ...PLANNED.map((p) => p.id)];
+    const ids = PARTS.flatMap((p) => catalog(p.no).map((l) => l.id));
     expect(new Set(ids).size).toBe(ids.length);
     for (const id of ids) expect(RESERVED_ROUTES.has(id)).toBe(false);
+  });
+
+  it('予定の id は書き上がったレッスンか、まだ書かれていないもの', () => {
+    const planned = new Set(PLANNED.map((p) => p.id));
+    for (const l of LESSONS) if (l.part <= 5) expect(planned.has(l.id), l.id).toBe(true);
   });
 
   it('全21レッスンが部に振り分けられている', () => {
@@ -26,6 +31,9 @@ describe('レッスン全体', () => {
   it('前後のレッスンへのリンクが張られ、部の最後は比較ページにつながる', () => {
     expect(lessonNeighbors('websocket', 'ja').next?.href).toBe('/ja/webrtc/');
     expect(lessonNeighbors('webtransport', 'ja').next?.href).toBe('/ja/compare/realtime/');
+    expect(lessonNeighbors('udp', 'ja').next?.href).toBe('/ja/tcp/');
+    expect(lessonNeighbors('tcp', 'ja').next?.href).toBe('/ja/compare/transport/');
+    expect(lessonNeighbors('tls13', 'ja').next?.href).toBe('/ja/compare/naming-security/');
   });
 });
 

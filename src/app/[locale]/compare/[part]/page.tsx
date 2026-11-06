@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { COMPARES, getCompare, getLesson, getPart, getPartBySlug } from '@/lessons';
+import { COMPARES, afterCompare, getCompare, getLesson, getPart, getPartBySlug } from '@/lessons';
 import { SiteHeader } from '@/components/SiteHeader/SiteHeader';
 import { LessonNav } from '@/components/LessonNav/LessonNav';
 import { InlineMarkdown, plain } from '@/lib/markdown';
@@ -77,7 +77,7 @@ export default async function ComparePage({ params }: { params: Params }) {
         <LessonNav
           locale={locale}
           prev={prevLesson ? { href: `/${locale}/${prevLesson.id}/`, label: prevLesson.title } : undefined}
-          next={{ href: `/${locale}/`, label: t.top }}
+          next={afterCompare(part.no, locale)}
         />
       </main>
     </div>
