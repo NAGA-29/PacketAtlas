@@ -25,3 +25,7 @@ pnpm 10.28.0 の公開後待機設定は依存解決時に適用され、既存�
 push とプルリクエストのたびに、GitHub Actions(`.github/workflows/ci.yml`)が lint・型チェック・テスト・ビルド・E2E を実行します。
 
 設計は [docs/design.md](docs/design.md)、作業ルールは [CLAUDE.md](CLAUDE.md)。
+
+## 参考
+
+- [PROTOCOL EXPLORER](https://protocol-explorer-alpha.vercel.app/)
