@@ -3,11 +3,6 @@
 .lead { max-width: 72ch; margin: 0 0 18px; color: var(--muted); }
 .lead b { color: var(--ink); font-weight: 500; }
 .lead code { color: var(--ink); }
-.intro { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 20px; align-items: start; margin-bottom: 18px; }
-.intro .lead { margin: 0; }
-@media (max-width: 900px) {
-  .intro { grid-template-columns: 1fr; gap: 14px; }
-}
 
 .sources { margin-top: 28px; font-size: 14px; }
 .sources h2 { font-size: 15px; margin: 0 0 6px; }

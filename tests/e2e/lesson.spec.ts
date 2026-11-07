@@ -101,6 +101,7 @@ test('つながり図に切り替えられ、線のクリックで手順が移�
   const results = await new AxeBuilder({ page }).analyze();
   expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')).toEqual([]);
   await page.getByRole('region', { name: 'DNSのつながり図' }).screenshot({ path: testInfo.outputPath('topology.png') });
+  await page.screenshot({ path: testInfo.outputPath('lesson-layout.png'), fullPage: true });
   await page.keyboard.press('ArrowRight');
   await expect(page.getByText('手順 2 / 7')).toBeVisible();
   await page.reload();

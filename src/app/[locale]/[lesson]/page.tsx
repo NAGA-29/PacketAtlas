@@ -39,13 +39,10 @@ export default async function LessonPage({ params }: { params: Params }) {
           {t.part(part.no)} {part.title}
         </p>
         <h1 className={styles.title}>{lesson.title}</h1>
-        <div className={styles.intro}>
-          <p className={styles.lead}>
-            <InlineMarkdown text={lesson.lead} />
-          </p>
-          <Overview lesson={lesson} locale={locale} />
-        </div>
-        <LessonPlayer lesson={lesson} locale={locale} />
+        <p className={styles.lead}>
+          <InlineMarkdown text={lesson.lead} />
+        </p>
+        <LessonPlayer lesson={lesson} locale={locale} overview={<Overview lesson={lesson} locale={locale} />} />
         <section className={styles.sources} aria-labelledby="sources">
           <h2 id="sources">{t.sources}</h2>
           <ul>

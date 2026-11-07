@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { Lesson } from '@/lessons/types';
 import type { Locale } from '@/lib/i18n';
 import { SequenceDiagram } from '../SequenceDiagram/SequenceDiagram';
@@ -13,7 +13,7 @@ const AUTOPLAY_MS = 5200;
 const isInteractive = (el: EventTarget | null): boolean =>
   el instanceof HTMLElement && Boolean(el.closest('button, a, input, select, textarea, summary, [contenteditable="true"]'));
 
-export function LessonPlayer({ lesson, locale }: { lesson: Lesson; locale: Locale }) {
+export function LessonPlayer({ lesson, locale, overview }: { lesson: Lesson; locale: Locale; overview?: ReactNode }) {
   const [current, setCurrent] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useSpeed();
@@ -121,6 +121,7 @@ export function LessonPlayer({ lesson, locale }: { lesson: Lesson; locale: Local
           onSpeed={setSpeed}
         />
         <PacketInspector key={`${lesson.id}-${current}`} packet={step?.packet} locale={locale} />
+        {overview}
       </div>
     </div>
   );

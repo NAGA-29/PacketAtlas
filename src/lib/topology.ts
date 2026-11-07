@@ -70,7 +70,7 @@ export const layoutTopology = (lesson: Pick<Lesson, 'lanes' | 'steps'>): Topolog
       });
       return Math.max(90, Math.ceil(w) + 24);
     };
-    height = 340;
+    height = 270;
     nodes = [];
     let x = 20;
     order.forEach((id, i) => {
