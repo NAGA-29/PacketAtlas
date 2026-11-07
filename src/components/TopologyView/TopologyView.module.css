@@ -1,30 +1,27 @@
-.wrap {
-  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-  background-size: 16px 16px;
+.wrap { background: var(--panel); }
+.canvas {
   overflow-x: auto;
-  padding: 8px 0 0;
+  padding: 8px 0;
+  background-image: radial-gradient(circle, var(--rule) 0.7px, transparent 0.8px);
+  background-size: 24px 24px;
 }
-.wrap svg { display: block; width: 100%; height: auto; margin: 0 auto; min-width: 520px; }
-.wrap svg text { font-family: var(--font-sans); }
+.canvas:focus-visible { outline: 2px solid var(--blue); outline-offset: -3px; }
+.canvas svg { display: block; width: 100%; height: auto; margin: 0 auto; }
+.canvas svg text { font-family: var(--font-sans); }
 
-/* 機器の箱:控えめな影で紙の上に置いたように見せる */
-.node { fill: var(--panel); stroke: var(--rule); stroke-width: 1.5; filter: drop-shadow(0 1px 0 var(--rule)); transition: stroke 0.2s; }
-.on .node { stroke: var(--ink); stroke-width: 2; }
-.iconBg { fill: var(--grid); stroke: none; }
-.on .iconBg { fill: var(--f0); }
 .icon { color: var(--muted); }
 .on .icon { color: var(--blue); }
+.status { stroke: var(--rule); stroke-width: 2; stroke-linecap: round; }
+.on .status { stroke: var(--blue); stroke-width: 4; }
 .name { fill: var(--ink); font-size: 14px; font-weight: 700; }
 .sub { fill: var(--muted); font-size: 11px; }
+.name, .sub { paint-order: stroke; stroke: var(--panel); stroke-width: 5px; stroke-linejoin: round; }
 
 .edge { cursor: pointer; }
-.hit { stroke: transparent; stroke-width: 14; }
-.idle { stroke: var(--rule); stroke-width: 1.6; stroke-dasharray: 2 5; }
+.hit { stroke: transparent; stroke-width: 20; }
+.idle { stroke: var(--muted); stroke-opacity: 0.45; stroke-width: 1.5; stroke-dasharray: 5 6; }
+.edge:hover .idle { stroke-opacity: 1; }
 .cross { stroke: var(--mag); stroke-width: 2; }
-.edgeLabel { font-size: 12px; font-weight: 500; paint-order: stroke; stroke: var(--panel); stroke-width: 4px; stroke-linejoin: round; }
-.dot { pointer-events: none; }
-.hint { margin: 0; padding: 4px 14px 8px; font-size: 12px; color: var(--muted); }
-
-@media (prefers-reduced-motion: reduce) {
-  .node { transition: none; }
-}
+.edgeLabel { font-size: 12px; font-weight: 500; paint-order: stroke; stroke: var(--panel); stroke-width: 6px; stroke-linejoin: round; }
+.dot { pointer-events: none; stroke: var(--panel); stroke-width: 2; }
+.hint { margin: 0; padding: 12px 14px; border-top: 1px solid var(--rule); font-size: 12px; line-height: 1.8; color: var(--muted); }
