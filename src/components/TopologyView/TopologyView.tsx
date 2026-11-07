@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useMemo, useRef } from 'react';
 import type { HopKind, Lesson } from '@/lessons/types';
-import { activeEdges, clipToBoxes, ICON_SPACE, labelPosition, layoutTopology, NODE_H } from '@/lib/topology';
+import { activeEdges, clipToBoxes, edgeKey, trackLabel, ICON_SPACE, labelPosition, layoutTopology, NODE_H, offsetSegment, TRACK_GAP } from '@/lib/topology';
 import { deviceIcon } from '@/lib/device';
 import { dict, type Locale } from '@/lib/i18n';
 import { KIND_COLOR } from '../SequenceDiagram/SequenceDiagram';
@@ -45,7 +45,12 @@ export function TopologyView({ lesson, locale, current, speed, reducedMotion, on
       const p = h && node(h.from);
       const q = h && node(h.to);
       if (cancelled || !h || !p || !q) return hide();
-      const [x1, y1, x2, y2] = clipToBoxes(p, q);
+      // 同じ線を複数の種類が通るときは、その種類の平行線の上を動かす
+      const [a, b] = edgeKey(h.from, h.to, lesson.lanes.map((l) => l.id));
+      const off = active.get(`${a}|${b}`)?.find((tr) => tr.kind === h.kind)?.offset ?? 0;
+      const [ax1, ay1, ax2, ay2] = clipToBoxes(node(a)!, node(b)!);
+      const [ox1, oy1, ox2, oy2] = offsetSegment(ax1, ay1, ax2, ay2, off);
+      const [x1, y1, x2, y2] = h.from === a ? [ox1, oy1, ox2, oy2] : [ox2, oy2, ox1, oy1];
       const ex = h.lost ? (x1 + x2) / 2 : x2;
       const ey = h.lost ? (y1 + y2) / 2 : y2;
       dot.style.fill = KIND_COLOR[h.kind];
@@ -73,7 +78,7 @@ export function TopologyView({ lesson, locale, current, speed, reducedMotion, on
     };
     // node は layout から決まるので layout を依存に含める
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, layout, speed, reducedMotion]);
+  }, [step, layout, active, speed, reducedMotion]);
 
   return (
     <div className={styles.wrap}>
@@ -90,31 +95,49 @@ export function TopologyView({ lesson, locale, current, speed, reducedMotion, on
           const q = node(e.b);
           if (!p || !q) return null;
           const [x1, y1, x2, y2] = clipToBoxes(p, q);
-          const a = active.get(`${e.a}|${e.b}`);
-          const col = a ? KIND_COLOR[a.kind] : 'var(--rule)';
-          const marker = a ? `url(#tp-${lesson.id}-${a.kind})` : undefined;
-          const lp = labelPosition(x1, y1, x2, y2);
-          const firstLabel = a ? step?.hops.find((h) => h.from !== h.to && [h.from, h.to].includes(e.a) && [h.from, h.to].includes(e.b))?.label : undefined;
+          const tracks = active.get(`${e.a}|${e.b}`) ?? [];
+          // ラベルは、平行線の束の外側から積み重ねる
+          const spread = ((tracks.length - 1) * TRACK_GAP) / 2;
           return (
             <g key={`${e.a}|${e.b}`} className={styles.edge} onClick={() => onSelect?.(e.firstStep)}>
               <title>{`${lesson.lanes.find((l) => l.id === e.a)?.name} ⇄ ${lesson.lanes.find((l) => l.id === e.b)?.name}`}</title>
               {/* クリックしやすいよう、見えない太い線を下に敷く */}
               <line x1={x1} y1={y1} x2={x2} y2={y2} className={styles.hit} />
-              <line
-                x1={x1}
-                y1={y1}
-                x2={x2}
-                y2={y2}
-                style={{ stroke: col, strokeWidth: a ? 2.6 : 1.6, strokeDasharray: a?.lost ? '5 4' : a ? undefined : '2 5' }}
-                markerEnd={a?.forward ? marker : undefined}
-                markerStart={a?.backward ? marker : undefined}
-              />
-              {firstLabel && (
-                <text x={lp.x} y={lp.y} textAnchor={lp.anchor} className={styles.edgeLabel} style={{ fill: col }}>
-                  {firstLabel}
-                  {a?.lost ? t.lost : ''}
-                </text>
-              )}
+              {tracks.length === 0 && <line x1={x1} y1={y1} x2={x2} y2={y2} className={styles.idle} />}
+              {tracks.map((tr) => {
+                const col = KIND_COLOR[tr.kind];
+                const marker = `url(#tp-${lesson.id}-${tr.kind})`;
+                const [sx1, sy1, sx2, sy2] = offsetSegment(x1, y1, x2, y2, tr.offset);
+                const mx = (sx1 + sx2) / 2;
+                const my = (sy1 + sy2) / 2;
+                return (
+                  <g key={tr.kind}>
+                    <line
+                      x1={sx1}
+                      y1={sy1}
+                      x2={sx2}
+                      y2={sy2}
+                      style={{ stroke: col, strokeWidth: 2.6, strokeDasharray: tr.lostAll ? '5 4' : undefined }}
+                      markerEnd={tr.forward ? marker : undefined}
+                      markerStart={tr.backward ? marker : undefined}
+                    />
+                    {tr.lostAny && (
+                      <g className={styles.cross}>
+                        <line x1={mx - 5} y1={my - 5} x2={mx + 5} y2={my + 5} />
+                        <line x1={mx - 5} y1={my + 5} x2={mx + 5} y2={my - 5} />
+                      </g>
+                    )}
+                  </g>
+                );
+              })}
+              {tracks.map((tr, i) => {
+                const lp = labelPosition(x1, y1, x2, y2, 10 + spread + i * 15);
+                return (
+                  <text key={tr.kind} x={lp.x} y={lp.y} textAnchor={lp.anchor} className={styles.edgeLabel} style={{ fill: KIND_COLOR[tr.kind] }}>
+                    {trackLabel(tr, t)}
+                  </text>
+                );
+              })}
             </g>
           );
         })}

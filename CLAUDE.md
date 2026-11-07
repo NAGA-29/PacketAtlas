@@ -11,6 +11,8 @@
 - `pnpm build` 静的書き出し(`out/`)
 - `pnpm e2e` Playwright + axe(先に `pnpm build`)
 - `pnpm typecheck`
+- `pnpm lint` ESLint(Next.js の推奨ルール、flat config は `eslint.config.mjs`)
+- CI は `.github/workflows/ci.yml`:lint → 型 → テスト → ビルド、続けて E2E(push と PR で実行)
 
 ## 構成
 - `src/lessons/types.ts` データモデル。`src/lessons/ja/*.ts` が1レッスン1ファイル。`src/lessons/index.ts` に登録(未執筆は `PLANNED`)
@@ -29,7 +31,7 @@
 - 架空フォーマットは `fictional: true`、暗号化部分を復号後で見せるときは `view: 'decrypted'`
 - つながり図とアイコンは自前の平面的な線画で描く(`DeviceGlyph`、参考サイトの暗い画面・立体的なノートPCやルーターの絵は使わない)。アイコンはレーン名から `src/lib/device.ts` で決まり、`Lane.icon` で上書きできる
 - 動きはパケットの移動だけ。reduced-motion で止める。色だけで意味を伝えない。WCAG AA
-- 各フェーズの区切りは `pnpm test` と `pnpm build` が通ること
+- 各フェーズの区切りは `pnpm lint`・`pnpm test`・`pnpm build` が通ること(CI でも同じ順に確認)
 
 ## バイト列の確かめ方(メモ)
 - IPv4 / UDP / TCP / ICMP のチェックサムは `codecs/inet.ts` で再計算(RFC 1071 の数値例でエンコーダー自体も検証)
