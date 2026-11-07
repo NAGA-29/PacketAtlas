@@ -98,6 +98,7 @@ export function LessonPlayer({ lesson, locale, overview }: { lesson: Lesson; loc
 
   return (
     <div className={styles.grid}>
+      <div className={styles.stage}>
       <div className={styles.diagramCol}>
         <SequenceDiagram
           lesson={lesson}
@@ -120,9 +121,10 @@ export function LessonPlayer({ lesson, locale, overview }: { lesson: Lesson; loc
           onTogglePlay={togglePlay}
           onSpeed={setSpeed}
         />
-        <PacketInspector key={`${lesson.id}-${current}`} packet={step?.packet} locale={locale} />
-        {overview}
       </div>
+      </div>
+      <div className={styles.inspector}><PacketInspector key={`${lesson.id}-${current}`} packet={step?.packet} locale={locale} /></div>
+      <div className={styles.overview}>{overview}</div>
     </div>
   );
 }

@@ -1,13 +1,9 @@
-.grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-  gap: 20px;
-  align-items: start;
-}
-.diagramCol { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); min-width: 0; }
-.side { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
-
-@media (max-width: 900px) {
-  .grid { grid-template-columns: 1fr; padding-bottom: 72px; }
-  .diagramCol { position: static; }
-}
+.grid { display: contents; }
+.stage { grid-column: 2; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 14px; align-items: stretch; min-width: 0; }
+.diagramCol, .side { min-width: 0; }
+.side { display: flex; }
+.side > article { width: 100%; }
+.inspector { grid-column: 1 / -1; min-width: 0; margin-top: 18px; }
+.overview { grid-column: 2; min-width: 0; margin-top: 24px; }
+@media (max-width: 1000px) { .stage, .overview { grid-column: 1; } .inspector { margin-top: 0; } }
+@media (max-width: 900px) { .stage { grid-template-columns: minmax(0, 1fr); } .overview { margin-top: 0; } }

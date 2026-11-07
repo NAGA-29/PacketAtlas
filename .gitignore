@@ -4,4 +4,10 @@ out/
 next-env.d.ts
 *.tsbuildinfo
 test-results/
+
+# Playwright related files
 playwright-report/
+.playwright-cli/
+.playwright-mcp/
+
+output/

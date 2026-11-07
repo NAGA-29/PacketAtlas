@@ -1,0 +1,9 @@
+.shell { max-width: 1720px; margin: 0 auto; padding: 0 24px 40px; }
+.main { display: grid; grid-template-columns: 232px minmax(0, 1fr); column-gap: 22px; align-items: start; }
+.intro { grid-column: 2; padding: 22px 0 18px; display: grid; grid-template-columns: minmax(160px, .8fr) minmax(0, 1.65fr); gap: 3px 24px; align-items: center; }
+.intro > p:first-child { grid-column: 1 / -1; color: var(--teal); font-weight: 600; margin-bottom: 4px; }
+.intro h1 { font-size: clamp(32px, 4.2vw, 58px); margin: 0; overflow-wrap: anywhere; }
+.intro > p:last-child { margin: 0; font-size: 14px; line-height: 1.9; max-width: 72ch; }
+.sources, .bottom { grid-column: 2; min-width: 0; }
+@media (max-width: 1000px) { .shell { padding: 0 18px 70px; } .main { grid-template-columns: minmax(0, 1fr); gap: 16px; } .intro, .sources, .bottom { grid-column: 1; } .intro { padding: 4px 0; } }
+@media (max-width: 600px) { .shell { padding: 0 12px 100px; } .intro { grid-template-columns: 1fr; gap: 8px; } .intro > p:last-child { font-size: 13px; } }

@@ -6,8 +6,8 @@
 }
 .head {
   margin: 0;
-  padding: 12px 20px;
-  font-size: 14px;
+  padding: 12px 18px;
+  font-size: 13px;
   font-weight: 400;
   color: var(--muted);
   border-bottom: 1px solid var(--rule);
@@ -15,7 +15,8 @@
   justify-content: space-between;
   gap: 12px;
 }
-.name { color: var(--ink); font-weight: 500; }
+.name { color: var(--ink); font-weight: 600; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.kicker { font-size: 18px; }
 .empty { padding: 22px 20px; color: var(--muted); }
 
 .layers {
@@ -69,7 +70,7 @@
 .fields tr.hot td { background: var(--grid); }
 .sw { width: 10px; padding-right: 0 !important; }
 .sw i { display: block; width: 10px; height: 10px; border-radius: 2px; margin-top: 6px; }
-.fn { font-weight: 500; white-space: nowrap; }
+.fn { font-weight: 600; min-width: 7em; }
 .fd { color: var(--muted); }
 .fv {
   font-family: var(--font-mono);
@@ -112,3 +113,31 @@
   .fn { white-space: normal; }
   .fields td { padding: 8px; }
 }
+
+.content { position: relative; display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); }
+.bytesCol { min-width: 0; padding: 8px 0; }
+.fieldScroll { min-width: 0; overflow: auto; max-height: 340px; border-left: 1px solid var(--rule); }
+.fields { font-size: 12px; }
+.fields th { text-align: left; font-size: 11px; color: var(--muted); padding: 9px 10px; font-weight: 500; background: var(--panel); position: sticky; top: 0; z-index: 1; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+.fields td { padding: 10px; }
+.fields tr[tabindex] { cursor: pointer; }
+.fields tr[aria-current='true'] { outline: 2px solid var(--teal); outline-offset: -2px; background: var(--grid); }
+.length { font-family: var(--font-mono); text-align: center; }
+.value { min-width: 85px; max-width: 220px; }
+.fv { font-size: 11px; }
+.raw { max-height: 280px; }
+.hexRaw { padding: 12px 16px; overflow: auto; }
+.hexRow { display: grid; grid-template-columns: 56px repeat(16, minmax(24px, 1fr)); gap: 3px; align-items: center; min-width: 490px; margin-bottom: 6px; }
+.hexRow:first-child { padding-bottom: 10px; margin-bottom: 12px; border-bottom: 1px solid var(--rule); }
+.ruler { font-size: 10px; text-align: center; color: var(--muted); }
+.offset { font-size: 10px; color: var(--muted); }
+.hexRow .byte { padding: 3px 0; text-align: center; margin: 0; font-size: 12px; }
+.byte, .tok { cursor: pointer; }
+.hint { color: var(--teal); font-size: 11px; padding: 8px 20px 0; margin: 0; min-height: 30px; }
+@media (max-width: 1000px) { .content { grid-template-columns: minmax(0, 1fr); } .fieldScroll { border-left: 0; border-top: 1px solid var(--rule); } }
+@media (max-width: 600px) { .head { padding: 12px; flex-wrap: wrap; } .name { gap: 4px 12px; } .kicker { font-size: 16px; } .fields td { padding: 8px 6px; } .fields th { padding: 8px 6px; } .length { display: none; } .fields th:nth-child(3) { display: none; } .fn { min-width: 6em; } .value { min-width: 60px; } .hexRaw { padding: 10px; } }
+
+.connector { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; overflow: hidden; }
+.connector path { fill: none; stroke: var(--teal); stroke-width: 1.5; stroke-linejoin: round; }
+.raw .hot { outline-color: var(--teal); }
+@media (max-width: 1000px) { .connector { display: none; } }

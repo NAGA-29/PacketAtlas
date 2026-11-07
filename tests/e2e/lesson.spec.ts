@@ -41,6 +41,31 @@ test('ハッシュで手順を直接開ける', async ({ page }) => {
   await expect(page.getByRole('heading', { name: '101 Switching Protocols' })).toBeVisible();
 });
 
+test('バイト欄の項目をキーボードで選択でき、手順を変えると選択が戻る', async ({ page }) => {
+  await page.goto('/ja/tcp/');
+  const inspector = page.getByRole('region', { name: 'パケットの中身' });
+  const field = inspector.getByRole('row').filter({ hasText: 'シーケンス番号' });
+  await field.focus();
+  await page.keyboard.press('Enter');
+  await expect(field).toHaveAttribute('aria-current', 'true');
+  await page.keyboard.press('Enter');
+  await expect(field).not.toHaveAttribute('aria-current', 'true');
+  await field.click();
+  await page.keyboard.press('ArrowRight');
+  await expect(page.getByText('手順 2 / 7', { exact: true })).toBeVisible();
+  await expect(inspector.locator('[aria-current="true"]')).toHaveCount(0);
+});
+
+test('学習マップからレッスンと部ごとの比較へ移れる', async ({ page }) => {
+  await page.goto('/ja/tcp/');
+  const map = page.getByRole('navigation', { name: '学習マップ' });
+  await map.getByRole('link', { name: /^UDP/ }).click();
+  await expect(page.getByRole('heading', { name: 'UDP', exact: true })).toBeVisible();
+  await expect(map.getByRole('link', { name: /^UDP/ })).toHaveAttribute('aria-current', 'page');
+  await map.getByRole('link', { name: '第2部の比較' }).click();
+  await expect(page).toHaveURL(/\/ja\/compare\/transport\/$/);
+});
+
 test('ビット分解を開ける', async ({ page }) => {
   await page.goto('/ja/websocket/#client-text');
   const btn = page.getByRole('button', { name: 'ビットを見る' }).first();

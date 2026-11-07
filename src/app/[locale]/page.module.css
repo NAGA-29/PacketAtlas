@@ -39,3 +39,19 @@
 @media (max-width: 900px) {
   .hero { grid-template-columns: 1fr; }
 }
+
+.hero { padding: 36px 0 24px; gap: 36px; }
+.hero .heroLabel { color: var(--teal); font: 500 12px var(--font-mono); letter-spacing: .08em; margin-bottom: 18px; }
+.hero h1 { line-height: 1.35; }
+.hero p:last-child a { display: inline-block; background: var(--blue); color: var(--panel); padding: 10px 16px; border-radius: 6px; text-decoration: none; font-size: 13px; margin-top: 12px; }
+.hero p:last-child a:hover { text-decoration: underline; }
+.parts { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.part { padding: 22px; border-top: 3px solid var(--teal); }
+.part h2 { font-size: 21px; }
+.part h2 small { margin-bottom: 5px; font-family: var(--font-mono); color: var(--teal); }
+.part > p { margin: 8px 0 18px; }
+.part li { padding: 12px 0; }
+.part li a { text-decoration: none; }
+.part li a:hover { text-decoration: underline; color: var(--blue); }
+@media (max-width: 900px) { .parts { grid-template-columns: repeat(2, minmax(0, 1fr)); } .hero { gap: 20px; } }
+@media (max-width: 560px) { .parts { grid-template-columns: minmax(0, 1fr); } .hero { padding-top: 26px; } }

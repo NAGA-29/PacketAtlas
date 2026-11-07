@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { PARTS, catalog, getPart, isLesson, lessonsInPart, COMPARE_PARTS } from '@/lessons';
 import type { PartNo } from '@/lessons/types';
 import { dict, type Locale } from '@/lib/i18n';
+import { DeviceGlyph } from '../DeviceGlyph';
 import { ThemeToggle } from './ThemeToggle';
 import styles from './SiteHeader.module.css';
 
@@ -19,8 +20,10 @@ export function SiteHeader({ locale, part, lessonId, compare }: Props) {
     <header className={styles.header}>
       <a className="skip" href="#main">{t.skip}</a>
       <Link href={`/${locale}/`} className={styles.logo}>
+        <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><DeviceGlyph icon="switch" x={0} y={0} /></svg>
         {t.siteName}
       </Link>
+      <span className={styles.caption}>{t.brandCaption}</span>
       {part && (
         <details className={styles.parts}>
           <summary>

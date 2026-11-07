@@ -1,12 +1,12 @@
 /* デザイントークン(docs/design.md「デザインシステム」) */
 :root {
-  --paper: #e9ede8; --panel: #f7f8f4; --ink: #18202b; --muted: #5a6570; --rule: #c6cec8; --grid: rgba(24, 32, 43, 0.06);
-  --blue: #2b57c9; --mag: #b32c6e; --teal: #0f7f70; --ochre: #8f6204; /* 設計書の #9A6A08 は --panel 上で 4.43:1 と AA に届かないため調整 */
+  --paper: #f6f7f3; --panel: #fdfdf9; --ink: #18202b; --muted: #5a6570; --rule: #c6cec8; --grid: rgba(24, 32, 43, 0.06);
+  --blue: #204dd8; --mag: #b32c6e; --teal: #0f7f70; --ochre: #8f6204; /* 設計書の #9A6A08 は --panel 上で 4.43:1 と AA に届かないため調整 */
   --f0: #dce5fb; --f1: #f7dce8; --f2: #d6f0ea; --f3: #f5e7c6; --f4: #e6ddf6; --f5: #e2e8da;
   --f0i: #1d3e92; --f1i: #7e1c4c; --f2i: #0b5a4f; --f3i: #6b4a05; --f4i: #4a2e86; --f5i: #3d4a2a;
   --font-sans: 'IBM Plex Sans JP', 'Hiragino Sans', 'Noto Sans JP', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
-  --radius: 10px;
+  --radius: 8px;
   color-scheme: light;
 }
 

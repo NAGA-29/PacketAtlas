@@ -6,12 +6,15 @@
   min-width: 0;
 }
 .scroll {
-  max-height: calc(100vh - 120px);
+  height: 420px;
+  max-height: 58vh;
   overflow: auto;
-  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-  background-size: 16px 16px;
+  background-image: radial-gradient(var(--rule) .65px, transparent .65px);
+  background-size: 12px 12px;
 }
-.views { display: flex; gap: 4px; padding: 8px 10px; border-bottom: 1px solid var(--rule); }
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--rule); }
+.heading { font-size: 16px; margin: 0; }
+.views { display: flex; gap: 3px; }
 .views button {
   font: inherit;
   font-size: 13px;
@@ -35,11 +38,11 @@
 .laneSub { fill: var(--muted); font-size: 11px; }
 
 .step { cursor: pointer; transition: opacity 0.3s; }
-.fut { opacity: 0.1; }
-.past { opacity: 0.45; }
+.fut { opacity: .76; }
+.past { opacity: .85; }
 .cur { opacity: 1; }
-.step:hover.fut { opacity: 0.3; }
-.step:hover.past { opacity: 0.7; }
+.step:hover.fut { opacity: 1; }
+.step:hover.past { opacity: 1; }
 
 .num { fill: var(--panel); stroke: var(--ink); stroke-width: 1.2; }
 .numText { fill: var(--ink); font-size: 11px; font-weight: 700; }
@@ -79,3 +82,12 @@
 @media (prefers-reduced-motion: reduce) {
   .step, .hop { transition: none; }
 }
+
+.selection { fill: var(--f0); opacity: .65; }
+.cur .num { fill: var(--blue); stroke: var(--blue); }
+.cur .numText { fill: var(--panel); }
+.cur .label { font-weight: 700; }
+.laneIcon { color: var(--ink); }
+
+.scrollHint { display: none; }
+@media (max-width: 1000px) { .scrollHint { display: block; margin: 0; padding: 6px 12px; color: var(--muted); font-size: 11px; border-top: 1px solid var(--rule); } }

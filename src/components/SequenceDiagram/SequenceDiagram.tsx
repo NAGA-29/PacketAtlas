@@ -103,7 +103,7 @@ export function SequenceDiagram({ lesson, locale, current, speed, reducedMotion,
     const box = layout.steps[current];
     if (!sc || !svg || !box) return;
     const scale = svg.getBoundingClientRect().width / layout.width;
-    sc.scrollTo({ top: Math.max(0, box.y0 * scale - 90), behavior: reducedMotion ? 'auto' : 'smooth' });
+    sc.scrollTo({ top: current === 0 ? 0 : Math.max(0, box.y0 * scale - 110), behavior: reducedMotion ? 'auto' : 'smooth' });
   }, [current, layout, reducedMotion, view]);
 
   const kinds = Object.keys(KIND_COLOR) as HopKind[];
@@ -111,12 +111,15 @@ export function SequenceDiagram({ lesson, locale, current, speed, reducedMotion,
   return (
     <section className={styles.diagram} aria-label={t.diagram}>
       {allowTopology && (
+        <div className={styles.toolbar}>
+        <h2 className={styles.heading}>{t.flow}</h2>
         <div className={styles.views} role="group" aria-label={t.view.label}>
           {(['sequence', 'topology'] as const).map((v) => (
             <button key={v} type="button" aria-pressed={view === v} onClick={() => setView(v)}>
               {t.view[v]}
             </button>
           ))}
+        </div>
         </div>
       )}
       {view === 'topology' && <TopologyView lesson={lesson} locale={locale} current={current} speed={speed} reducedMotion={reducedMotion} onSelect={onSelect} />}
@@ -161,6 +164,7 @@ export function SequenceDiagram({ lesson, locale, current, speed, reducedMotion,
                 data-step={si}
               >
                 <title>{`${si + 1}. ${st.title}`}</title>
+                {si === current && <rect x={4} y={box.y0 - 22} width={layout.width - 8} height={box.y1 - box.y0 + 40} rx={6} className={styles.selection} />}
                 <circle cx={22} cy={box.y0} r={11} className={styles.num} />
                 <text x={22} y={box.y0 + 4} textAnchor="middle" className={styles.numText}>{si + 1}</text>
                 {box.y1 > box.y0 && <line x1={22} y1={box.y0 + 11} x2={22} y2={box.y1} className={styles.numLine} />}
@@ -204,6 +208,7 @@ export function SequenceDiagram({ lesson, locale, current, speed, reducedMotion,
           <circle ref={dotRef} r={5.5} cx={-20} cy={-20} className={styles.dot} aria-hidden="true" />
         </svg>
       </div>
+      {view === 'sequence' && <p className={styles.scrollHint}>{t.diagramScrollHint}</p>}
       {legend && (
         <div className={styles.legend}>
           {kinds.map((k) => (

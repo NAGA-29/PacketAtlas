@@ -20,6 +20,7 @@ export default async function TopPage({ params }: { params: Promise<{ locale: st
       <main id="main">
         <section className={styles.hero}>
           <div>
+            <p className={styles.heroLabel}>PACKET ATLAS / {t.catalogSize}</p>
             <h1>{t.siteTagline}</h1>
             <p>
               パケットが機器のあいだを飛ぶシーケンス図と、1バイトずつの分解で、プロトコルが実際に何を送っているかを見ていきます。

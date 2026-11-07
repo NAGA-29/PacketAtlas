@@ -24,7 +24,7 @@ export function StepPanel({ steps, current, locale, playing, speed, onGo, onTogg
   return (
     <article className={styles.step}>
       <div aria-live="polite" aria-atomic="true">
-        <div className={styles.num}>{t.step(current + 1, steps.length)}</div>
+        <div className={styles.num}><span>{t.selectedStep}</span><span>{t.step(current + 1, steps.length)}</span></div>
         <h2 className={styles.title}>{st.title}</h2>
         <div className={styles.body}>
           <Markdown text={st.body} />
@@ -34,19 +34,18 @@ export function StepPanel({ steps, current, locale, playing, speed, onGo, onTogg
         <button type="button" onClick={() => onGo(current - 1)} disabled={current === 0}>
           {t.prev}
         </button>
-        <button type="button" className={styles.primary} onClick={onTogglePlay} aria-pressed={playing}>
+        <button type="button" onClick={onTogglePlay} aria-pressed={playing}>
           {playing ? t.pause : t.play}
         </button>
-        <button type="button" onClick={() => onGo(current + 1)} disabled={current === last}>
+        <button type="button" className={styles.primary} onClick={() => onGo(current + 1)} disabled={current === last}>
           {t.next}
         </button>
-        <div className={styles.speed} role="group" aria-label={t.speed}>
-          {SPEEDS.map((s) => (
-            <button key={s} type="button" aria-pressed={speed === s} onClick={() => onSpeed(s)} className={styles.speedBtn}>
-              {s}×
-            </button>
-          ))}
-        </div>
+        <label className={styles.speed}>
+          <span className="visually-hidden">{t.speed}</span>
+          <select value={speed} onChange={(e) => onSpeed(Number(e.target.value) as Speed)}>
+            {SPEEDS.map((s) => <option key={s} value={s}>{s}×</option>)}
+          </select>
+        </label>
         <ol className={styles.dots} aria-label={t.lessonsNav}>
           {steps.map((s, k) => (
             <li key={s.id}>
@@ -57,11 +56,12 @@ export function StepPanel({ steps, current, locale, playing, speed, onGo, onTogg
                 aria-label={`${k + 1}. ${s.title}`}
                 title={`${k + 1}. ${s.title}`}
                 onClick={() => onGo(k)}
-              />
+              >{k + 1}</button>
             </li>
           ))}
         </ol>
       </div>
+      <div className={styles.keys} aria-hidden="true"><kbd>←</kbd><kbd>→</kbd> {t.keyboardSteps}<span /><kbd>Space</kbd> {t.keyboardPlay}</div>
     </article>
   );
 }

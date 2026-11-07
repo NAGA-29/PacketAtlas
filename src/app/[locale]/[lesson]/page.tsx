@@ -8,6 +8,8 @@ import { SiteHeader } from '@/components/SiteHeader/SiteHeader';
 import { InlineMarkdown, plain } from '@/lib/markdown';
 import { LOCALES, dict, isLocale } from '@/lib/i18n';
 import styles from '../page.module.css';
+import workspace from './workspace.module.css';
+import { LearningMap } from '@/components/LearningMap/LearningMap';
 
 type Params = Promise<{ locale: string; lesson: string }>;
 
@@ -32,9 +34,11 @@ export default async function LessonPage({ params }: { params: Params }) {
   const part = getPart(lesson.part);
   const { prev, next } = lessonNeighbors(lesson.id, locale);
   return (
-    <div className="wrap">
+    <div className={workspace.shell}>
       <SiteHeader locale={locale} part={lesson.part} lessonId={lesson.id} />
-      <main id="main">
+      <main id="main" className={workspace.main}>
+        <LearningMap locale={locale} part={lesson.part} lessonId={lesson.id} />
+        <div className={workspace.intro}>
         <p className={styles.eyebrow}>
           {t.part(part.no)} {part.title}
         </p>
@@ -42,8 +46,9 @@ export default async function LessonPage({ params }: { params: Params }) {
         <p className={styles.lead}>
           <InlineMarkdown text={lesson.lead} />
         </p>
+        </div>
         <LessonPlayer lesson={lesson} locale={locale} overview={<Overview lesson={lesson} locale={locale} />} />
-        <section className={styles.sources} aria-labelledby="sources">
+        <section className={`${styles.sources} ${workspace.sources}`} aria-labelledby="sources">
           <h2 id="sources">{t.sources}</h2>
           <ul>
             {lesson.sources.map((s) => (
@@ -54,7 +59,7 @@ export default async function LessonPage({ params }: { params: Params }) {
           </ul>
           <p className={styles.verified}>{t.lastVerified(lesson.lastVerified)}</p>
         </section>
-        <LessonNav prev={prev} next={next} locale={locale} />
+        <div className={workspace.bottom}><LessonNav prev={prev} next={next} locale={locale} /></div>
       </main>
     </div>
   );
