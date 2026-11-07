@@ -91,11 +91,17 @@ test('プロトコルの概要カードが出る', async ({ page }) => {
   await expect(card.getByRole('link', { name: 'RFC 9110' })).toHaveAttribute('href', /rfc9110/);
 });
 
-test('つながり図に切り替えられ、線のクリックで手順が移り、選択が保存される', async ({ page }) => {
+test('つながり図に切り替えられ、線のクリックで手順が移り、選択が保存される', async ({ page }, testInfo) => {
   await page.goto('/ja/dns/');
   await page.getByRole('button', { name: 'つながり' }).click();
   await expect(page.getByRole('img', { name: 'DNSのつながり図' })).toBeVisible();
   await expect(page.getByRole('img', { name: 'DNSのシーケンス図' })).toBeHidden();
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')).toEqual([]);
+  await page.getByRole('region', { name: 'DNSのつながり図' }).screenshot({ path: testInfo.outputPath('topology.png') });
+  await page.screenshot({ path: testInfo.outputPath('lesson-layout.png'), fullPage: true });
   await page.keyboard.press('ArrowRight');
   await expect(page.getByText('手順 2 / 7')).toBeVisible();
   await page.reload();

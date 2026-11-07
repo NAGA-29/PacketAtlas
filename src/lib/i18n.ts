@@ -44,7 +44,7 @@ const ja = {
   overview: { title: 'プロトコルの概要', layer: '層', transport: 'トランスポート', ports: '既定のポート', format: 'データ形式', specs: '規定' },
   view: { label: '図の表示', sequence: 'シーケンス', topology: 'つながり' },
   topologyOf: (t: string) => `${t}のつながり図`,
-  topologyHint: '線は通信する組。今の手順で使う線を色と矢印で示す',
+  topologyHint: '線は通信する相手を示します（物理配線ではありません）。矢印と通信名が今の手順です。図は横にスクロールできます。',
   top: 'トップ',
 };
 

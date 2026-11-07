@@ -2,12 +2,10 @@
 import type { HopKind, Lesson } from '@/lessons/types';
 import { laneLabelWidth, textWidth } from './diagram';
 import { dict } from './i18n';
-import { deviceIcon } from './device';
 
 export const NODE_W = 150;
-export const NODE_H = 58;
-/** 箱の左に置くアイコンの分の幅 */
-export const ICON_SPACE = 34;
+/** 機器の線画と、その下の名前・補足を含む占有領域 */
+export const NODE_H = 156;
 
 export interface TopoNode {
   id: string;
@@ -60,7 +58,7 @@ export const layoutTopology = (lesson: Pick<Lesson, 'lanes' | 'steps'>): Topolog
 
   const boxW = (id: string) => {
     const lane = lesson.lanes.find((l) => l.id === id);
-    return Math.max(NODE_W, Math.ceil(laneLabelWidth(lane) + 24 + (lane && deviceIcon(lane) ? ICON_SPACE : 0)));
+    return Math.max(NODE_W, Math.ceil(laneLabelWidth(lane) + 24));
   };
 
   if (n <= 2 || isPath) {
@@ -72,7 +70,7 @@ export const layoutTopology = (lesson: Pick<Lesson, 'lanes' | 'steps'>): Topolog
       });
       return Math.max(90, Math.ceil(w) + 24);
     };
-    height = 170;
+    height = 270;
     nodes = [];
     let x = 20;
     order.forEach((id, i) => {
@@ -91,10 +89,11 @@ export const layoutTopology = (lesson: Pick<Lesson, 'lanes' | 'steps'>): Topolog
     const candidates = order.filter((id) => degree(id) === n - 1 && order.every((o) => o === id || degree(o) === 1));
     hub = n >= 4 && candidates.length === 1 ? candidates[0] : undefined;
     const ring = hub ? order.filter((id) => id !== hub) : order;
+    width = 800;
     const cx = width / 2;
-    const rx = hub ? 250 : 230;
-    const ry = hub ? 150 : ring.length <= 3 ? 85 : 110;
-    height = 2 * ry + NODE_H + 60;
+    const rx = 300;
+    const ry = hub ? 205 : ring.length <= 3 ? 135 : 170;
+    height = 2 * ry + NODE_H + 100;
     const cy = height / 2;
     // 3つなら上に2つ・下に1つ、4つなら四隅
     const start = ring.length === 3 ? -Math.PI / 2 - Math.PI / 3 : -Math.PI / 2 - Math.PI / ring.length;

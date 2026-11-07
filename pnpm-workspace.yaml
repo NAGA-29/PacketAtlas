@@ -1,0 +1,15 @@
+# 公開から7日（分単位）経過したバージョンだけを新規解決する。
+minimumReleaseAge: 10080
+
+# 間接依存が Git や任意の tarball URL を取得することを制限する。
+blockExoticSubdeps: true
+
+# package.json の packageManager と同じ pnpm バージョンを使う。
+packageManagerStrictVersion: true
+
+# 未確認の依存パッケージのインストールスクリプトがあれば停止する。
+strictDepBuilds: true
+allowBuilds:
+  # 配布済みのプラットフォーム別バイナリを使い、スクリプトは実行しない。
+  sharp: false
+  unrs-resolver: false
